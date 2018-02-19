@@ -29,7 +29,7 @@
 <meta property="og:image" content="http://qjgods.github.io/2018/02/19/PageRank/1519052828959.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/19/PageRank/1519052801833.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/19/PageRank/1519053031829.png">
-<meta property="og:updated_time" content="2018-02-19T15:37:29.812Z">
+<meta property="og:updated_time" content="2018-02-19T15:40:02.143Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Introduction of PageRank and Application in Social Network with Higher-Order Structures">
 <meta name="twitter:description" content="本文介绍了PageRank算法，并介绍了一个在社交网络里面，利用了高阶结构来对PR算法改进的算法">
@@ -150,8 +150,6 @@
                             
                                 <a class="fa 知乎" href="https://www.zhihu.com/people/xiao-jie-16-72-71" title="知乎"></a>
                             
-                                <a class="fa RSS" href="../../../../atom.xml" title="RSS"></a>
-                            
                         </ul>
                     </nav>
                 </section>
@@ -222,8 +220,6 @@
                             
                                 <a class="fa 知乎" target="_blank" href="https://www.zhihu.com/people/xiao-jie-16-72-71" title="知乎"></a>
                             
-                                <a class="fa RSS" target="_blank" href="../../../../atom.xml" title="RSS"></a>
-                            
                         </ul>
             </nav>
         </header>                
@@ -278,8 +274,7 @@
 <p>这个模型可以写作以下公式：<br>$$<br>PR(u) = \sum_{v \in B_u} \frac{PR(v)}{L(v)}<br>$$<br>其中L表示结点的出度，$B_u$是所有指向u的结点。然而一个用户在点击网页的时候是不会无限点下去了，他最终肯定会在某个结点上停止，于是，我们可以引入一个damping factor来表达这种关系，当你计算PR的时候，要乘一个衰减的系数来认为有一定概率会在上一个页面停止，而不会跳转到这个页面来。于是PR的公式可以改写成这样：<br>$$<br>PR(p_i) = \frac{1-d}{N} + d \sum_{p_j \in M(p_i)} \frac{PR (p_j)}{L(p_j)}<br>$$<br>d就是damping factor,d一般取0.85,N是结点数量，那个1-d/N是为了保证这个概率值在0到1之间。这个表达式可以写成矩阵的形式：<br>$$<br>\mathbf{R} =<br>\begin{bmatrix}<br>PR(p_1) \\<br>PR(p_2) \\<br>\vdots \\<br>PR(p_N)<br>\end{bmatrix}<br>$$</p>
 <p>$$<br>\mathbf{R} =<br>\begin{bmatrix}<br>{(1-d)/ N} \\<br>{(1-d) / N} \\<br>\vdots \\<br>{(1-d) / N}<br>\end{bmatrix}<br>+ d<br>\begin{bmatrix}<br>\ell(p_1,p_1) &amp; \ell(p_1,p_2) &amp; \cdots &amp; \ell(p_1,p_N) \\<br>\ell(p_2,p_1) &amp; \ddots &amp;  &amp; \vdots \\<br>\vdots &amp; &amp; \ell(p_i,p_j) &amp; \\<br>\ell(p_N,p_1) &amp; \cdots &amp; &amp; \ell(p_N,p_N)<br>\end{bmatrix}<br>\mathbf{R}<br>$$</p>
 <p>其中$l(p_i,p_j)$表示结点$p_i$对$p_j$的影响程度，比如在例子2，里面，$l(B,A)=1/2$.写成矩阵形式,这里P其实相当于邻接矩阵：<br>$$<br>\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}<br>$$<br>我们只要求解这个R，就能得到每个结点的PR值。</p>
-<p>##Ranking Users in Social Networks with Higher-Order Structures</p>
-<p>这里介绍一种改进的方法，这是在社交网络上的应用，在计算PR的时候，其实我们默认了，在一个网站上以相同概率跳转到其他的结点，但这其实在社交网络里面是有问题的。看下面的例子。</p>
+<h2 id="Ranking-Users-in-Social-Networks-with-Higher-Order-Structures"><a href="#Ranking-Users-in-Social-Networks-with-Higher-Order-Structures" class="headerlink" title="Ranking Users in Social Networks with Higher-Order Structures"></a>Ranking Users in Social Networks with Higher-Order Structures</h2><p>这里介绍一种改进的方法，这是在社交网络上的应用，在计算PR的时候，其实我们默认了，在一个网站上以相同概率跳转到其他的结点，但这其实在社交网络里面是有问题的。看下面的例子。</p>
 <p>用户1同时关注了2,3,4在三个用户，但是，很显然，用户1其实是更信任用户2多过用户4的，因为用户1同时关注了2跟3.</p>
 <p><img src="1519050454857.png" alt="1519050454857"></p>
 <p>所以我们要做的就是，考虑这种三角结构：</p>
@@ -304,7 +299,7 @@
         <p><span>本文标题:</span><a href="">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-02-19, 19:32:21</p>
-        <p><span>最后更新:</span>2018-02-19, 23:37:29</p>
+        <p><span>最后更新:</span>2018-02-19, 23:40:02</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="Introduction of PageRank and Application in Social Network with Higher-Order Structures">http://qjgods.github.io/2018/02/19/PageRank/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/02/19/PageRank/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -334,7 +329,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PageRank算法介绍"><span class="toc-number">1.</span> <span class="toc-text">PageRank算法介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#扩展资料"><span class="toc-number">2.</span> <span class="toc-text">扩展资料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">3.</span> <span class="toc-text">参考资料</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PageRank算法介绍"><span class="toc-number">1.</span> <span class="toc-text">PageRank算法介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ranking-Users-in-Social-Networks-with-Higher-Order-Structures"><span class="toc-number">2.</span> <span class="toc-text">Ranking Users in Social Networks with Higher-Order Structures</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#扩展资料"><span class="toc-number">3.</span> <span class="toc-text">扩展资料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
         
     </div>
     <style>
