@@ -2,7 +2,7 @@
 <html lang="zh-Hans">
 <head>
 
-    <!--[if lt IE 9]>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!--[if lt IE 9]>
         <style>body {display: none; background: none !important} </style>
         <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
     <![endif]-->
@@ -44,8 +44,6 @@
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
-
-    <link rel="alternate" href="/atom.xml" title="qjgods" type="application/atom+xml">
 
 
 
@@ -97,7 +95,7 @@
 
 
 
-    <script> yiliaConfig.rootUrl = "\/";</script>
+    <script> yiliaConfig.rootUrl = "\/";</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 
@@ -106,7 +104,7 @@
 
 </head>
 <body>
-  <div id="container">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
     <div class="left-col">
     <div class="overlay"></div>
 <div class="intrude-less">
@@ -273,51 +271,96 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="True-vs-Empirical-Risk"><a href="#True-vs-Empirical-Risk" class="headerlink" title="True vs. Empirical Risk"></a>True vs. Empirical Risk</h2><p>当你有一个函数f的时候，你自然就想知道它到底是好还是坏，那么怎么评价呢？我们可以用一个叫risk的东西来衡量这个函数的风险，这里的risk可以直观地看做你函数的<strong>错误率</strong>。然而，根据no free lunch定理，显然没有一个函数永远是最优的，那这个risk到底是什么？它其实是在你数据分布$\mathcal{D}$上的风险。而我们通常用empirical risk来对true risk进行估计，也就是对错误率估计,更一般empirical risk可以称为<strong>经验误差</strong>，当你的样本量越多的时候，你对函数f的风险的估计就越准确。</p>
+        <h2 id="true-vs.-empirical-risk">True vs. Empirical Risk</h2>
+<p>当你有一个函数f的时候，你自然就想知道它到底是好还是坏，那么怎么评价呢？我们可以用一个叫risk的东西来衡量这个函数的风险，这里的risk可以直观地看做你函数的<strong>错误率</strong>。然而，根据no free lunch定理，显然没有一个函数永远是最优的，那这个risk到底是什么？它其实是在你数据分布<span class="math inline">\(\mathcal{D}\)</span>上的风险。而我们通常用empirical risk来对true risk进行估计，也就是对错误率估计,更一般empirical risk可以称为<strong>经验误差</strong>，当你的样本量越多的时候，你对函数f的风险的估计就越准确。</p>
 <p>True Risk:</p>
 <ul>
-<li>Classification - 误分类概率 $P(f(X)\ne Y)$</li>
-<li>Regression - Mean Squared Error $\mathbb{E}[(f(X)-Y)^2]$</li>
+<li>Classification - 误分类概率 <span class="math inline">\(P(f(X)\ne Y)\)</span></li>
+<li>Regression - Mean Squared Error <span class="math inline">\(\mathbb{E}[(f(X)-Y)^2]\)</span></li>
 </ul>
 <p>Empirical Risk:</p>
 <ul>
-<li>Classification - $\frac{1}{n}\sum_{i=1}^n1_{f(X_i\ne Y_i)}$</li>
-<li>Regression -  $\frac{1}{n}\sum_{i=1}^n{(f(X_i)- Y_i)^2}$</li>
+<li>Classification - <span class="math inline">\(\frac{1}{n}\sum_{i=1}^n1_{f(X_i\ne Y_i)}\)</span></li>
+<li>Regression - <span class="math inline">\(\frac{1}{n}\sum_{i=1}^n{(f(X_i)- Y_i)^2}\)</span></li>
 </ul>
 <p>%可是我们仅仅用经验误差是不够的，因为经验误差只考虑了“训练集”的误差，我们可以很容易构造出一个函数使得他完美拟合所有数据。所以我们还要考虑泛化误差才行。</p>
-<p>我们设存在一个完美的risk,$R^*$ ,还有一个从n个数据中估计出来的f以及它对应的risk，$E[R(\hat{f_n})]$，我们定义一个Excess risk为$E[R(\hat{f_n})]-R^*$,于是这个excess risk可以分解为两部分，分别是estimation error 和 approximation error.</p>
-<p><img src="1518535927188.png" alt="1518535927188"></p>
-<p>直观来看，estimation error，是因为缺少足够的样本，从而导致我们从函数族$\mathcal{F}$选择模型时没法取得最优的模型而产生的误差。而approximation error是由于函数族$\mathcal{F}$的限制而产生的误差，比如说线性回归，由于限制在了线性的空间中，而对非线性的数据存在误差。</p>
+<p>我们设存在一个完美的risk,<span class="math inline">\(R^\*\)</span> ,还有一个从n个数据中估计出来的f以及它对应的risk，<span class="math inline">\(E[R(\hat{f_n})]\)</span>，我们定义一个Excess risk为<span class="math inline">\(E[R(\hat{f_n})]-R^*\)</span>,于是这个excess risk可以分解为两部分，分别是estimation error 和 approximation error.</p>
+<div class="figure">
+<img src="1518535927188.png" alt="1518535927188">
+<p class="caption">1518535927188</p>
+</div>
+<p>直观来看，estimation error，是因为缺少足够的样本，从而导致我们从函数族<span class="math inline">\(\mathcal{F}\)</span>选择模型时没法取得最优的模型而产生的误差。而approximation error是由于函数族<span class="math inline">\(\mathcal{F}\)</span>的限制而产生的误差，比如说线性回归，由于限制在了线性的空间中，而对非线性的数据存在误差。</p>
 <p>简单地说，estimation error是样本的问题，approximation error是模型复杂度的问题。</p>
-<p>然而模型越复杂，所需的样本也就越多，这就形成一个平衡，你需要一个合适的hypothese class $\mathcal{F}$大小。</p>
-<p><img src="1518535937954.png" alt="1518535937954"></p>
-<h2 id="Learning-Theory"><a href="#Learning-Theory" class="headerlink" title="Learning Theory"></a>Learning Theory</h2><p>Empirical Risk Minimization </p>
-<p><img src="1518537111943.png" alt="1518537111943"></p>
+<p>然而模型越复杂，所需的样本也就越多，这就形成一个平衡，你需要一个合适的hypothese class <span class="math inline">\(\mathcal{F}\)</span>大小。</p>
+<div class="figure">
+<img src="1518535937954.png" alt="1518535937954">
+<p class="caption">1518535937954</p>
+</div>
+<h2 id="learning-theory">Learning Theory</h2>
+<p>Empirical Risk Minimization</p>
+<div class="figure">
+<img src="1518537111943.png" alt="1518537111943">
+<p class="caption">1518537111943</p>
+</div>
 <p>三个重要的引理</p>
-<p><img src="1518537123984.png" alt="1518537123984"></p>
-<p><img src="1518881523085.png" alt="1518881523085"></p>
-<p>使用这几个引理可以让我们证明在learning theory中非常重要的结论。第三个定理是，一般套路就是考虑只有一个样本改变后两个相减的差，小于某个d，然后就可以套这个不等式，然后令最右边的是$\delta$，就得出了一个界。</p>
-<p>现在我们来定义一下Hypothesis Class，数据集不同的划分方式其实就对应了不同的假设类，而所有的划分方法就组成了假设类$\mathcal{H}$. 这个是跟，“概念类”对应的一个概念，所谓概念类其实就是数据正确的标签$\mathcal{C}$.，所以我们要做的事情就是搜索出一个最优的假设h，使得逼近正确的标签。</p>
-<h3 id="Finite-Hypothesis-Space"><a href="#Finite-Hypothesis-Space" class="headerlink" title="Finite Hypothesis Space"></a>Finite Hypothesis Space</h3><p>对于有限的假设空间，有以下定理</p>
-<p><img src="1518881888335.png" alt="1518881888335"></p>
-<p>上面这个引理是由hoeffding 不等式的出来的，因为这里的$\hat{E}$对应的是经验误差，是对E的近似，所以直接用hoeffding不等式。</p>
-<p><img src="1518877689847.png" alt="1518877689847"></p>
-<p>令$\delta=2|\mathcal{H}|\exp(-2m\epsilon^2)$即可得12.19</p>
-<p>上面定理用了引理1的集合的不等式。通过最下面的这个界可以看到，当$|H|$越大的时候这个界是越大的。</p>
-<h3 id="Infinite-Hypothesis-Space"><a href="#Infinite-Hypothesis-Space" class="headerlink" title="Infinite Hypothesis Space"></a>Infinite Hypothesis Space</h3><p>当假设类是无限时，我们可以构造出一个叫增长函数的东西，用来表示假设空间H对m个样本所能赋予的最大可能结果数。</p>
-<p><img src="1518882559587.png" alt="1518882559587"></p>
-<p>如果我们的假设空间能够对这所有m个样本赋予任意的标签，那么H在m个样本下是可以打散这个数据集D的，那么我们定义那个可以打散的m的最大值，称为H的VC维。也就是说，VC维是用于衡量假设空间$|H|$大小的一个东西。</p>
-<p><img src="1518882573822.png" alt="1518882573822"></p>
+<div class="figure">
+<img src="1518537123984.png" alt="1518537123984">
+<p class="caption">1518537123984</p>
+</div>
+<div class="figure">
+<img src="1518881523085.png" alt="1518881523085">
+<p class="caption">1518881523085</p>
+</div>
+<p>使用这几个引理可以让我们证明在learning theory中非常重要的结论。第三个定理是，一般套路就是考虑只有一个样本改变后两个相减的差，小于某个d，然后就可以套这个不等式，然后令最右边的是<span class="math inline">\(\delta\)</span>，就得出了一个界。</p>
+<p>现在我们来定义一下Hypothesis Class，数据集不同的划分方式其实就对应了不同的假设类，而所有的划分方法就组成了假设类<span class="math inline">\(\mathcal{H}\)</span>. 这个是跟，“概念类”对应的一个概念，所谓概念类其实就是数据正确的标签<span class="math inline">\(\mathcal{C}\)</span>.，所以我们要做的事情就是搜索出一个最优的假设h，使得逼近正确的标签。</p>
+<h3 id="finite-hypothesis-space">Finite Hypothesis Space</h3>
+<p>对于有限的假设空间，有以下定理</p>
+<div class="figure">
+<img src="1518881888335.png" alt="1518881888335">
+<p class="caption">1518881888335</p>
+</div>
+<p>上面这个引理是由hoeffding 不等式的出来的，因为这里的<span class="math inline">\(\hat{E}\)</span>对应的是经验误差，是对E的近似，所以直接用hoeffding不等式。</p>
+<div class="figure">
+<img src="1518877689847.png" alt="1518877689847">
+<p class="caption">1518877689847</p>
+</div>
+<p>令<span class="math inline">\(\delta=2|\mathcal{H}|\exp(-2m\epsilon^2)\)</span>即可得12.19</p>
+<p>上面定理用了引理1的集合的不等式。通过最下面的这个界可以看到，当<span class="math inline">\(|H|\)</span>越大的时候这个界是越大的。</p>
+<h3 id="infinite-hypothesis-space">Infinite Hypothesis Space</h3>
+<p>当假设类是无限时，我们可以构造出一个叫增长函数的东西，用来表示假设空间H对m个样本所能赋予的最大可能结果数。</p>
+<div class="figure">
+<img src="1518882559587.png" alt="1518882559587">
+<p class="caption">1518882559587</p>
+</div>
+<p>如果我们的假设空间能够对这所有m个样本赋予任意的标签，那么H在m个样本下是可以打散这个数据集D的，那么我们定义那个可以打散的m的最大值，称为H的VC维。也就是说，VC维是用于衡量假设空间<span class="math inline">\(|H|\)</span>大小的一个东西。</p>
+<div class="figure">
+<img src="1518882573822.png" alt="1518882573822">
+<p class="caption">1518882573822</p>
+</div>
 <p>这样我们就能用VC维来构造出经验误差的界,VC维有点像有限假设类下的类比。</p>
-<p><img src="1518882637789.png" alt="1518882637789"></p>
-<h3 id="Rademacher-复杂度"><a href="#Rademacher-复杂度" class="headerlink" title="Rademacher 复杂度"></a>Rademacher 复杂度</h3><p>Rademacher 复杂度，他是对VC维的一个改进，因为VC维在刻画假设空间的大小时，并没有考虑数据的分布，这使得他的界非常松，实际意义比较小。</p>
-<p><img src="1518882752502.png" alt="1518882752502"></p>
-<p>这里$y_i$取1，-1 ，然而这里yi其实是指现实中的值，而如果考虑更一般的情况，我们将y_i换成一个1，-1的随机变量，于是，问题转化为，我们希望找到一个h，使得这个最大（等价于经验误差最小）</p>
-<p><img src="1518882879727.png" alt="1518882879727"></p>
-<p>这里我的理解是，因为sup是在$\sigma_i$外面的，所以当我们选择h的时候，$\sigma_i$相当于是固定的，也就是可以看做是一个随机标签的样本，于是如果我们总能找到一个h使得每个$h(x_i)=\sigma_i$，那么这个东西就等于1，那这个假设空间就很棒。</p>
-<p><img src="1518883423948.png" alt="1518883423948"></p>
+<div class="figure">
+<img src="1518882637789.png" alt="1518882637789">
+<p class="caption">1518882637789</p>
+</div>
+<h3 id="rademacher-复杂度">Rademacher 复杂度</h3>
+<p>Rademacher 复杂度，他是对VC维的一个改进，因为VC维在刻画假设空间的大小时，并没有考虑数据的分布，这使得他的界非常松，实际意义比较小。</p>
+<div class="figure">
+<img src="1518882752502.png" alt="1518882752502">
+<p class="caption">1518882752502</p>
+</div>
+<p>这里<span class="math inline">\(y_i\)</span>取1，-1 ，然而这里yi其实是指现实中的值，而如果考虑更一般的情况，我们将y_i换成一个1，-1的随机变量，于是，问题转化为，我们希望找到一个h，使得这个最大（等价于经验误差最小）</p>
+<div class="figure">
+<img src="1518882879727.png" alt="1518882879727">
+<p class="caption">1518882879727</p>
+</div>
+<p>这里我的理解是，因为sup是在<span class="math inline">\(\sigma_i\)</span>外面的，所以当我们选择h的时候，<span class="math inline">\(\sigma_i\)</span>相当于是固定的，也就是可以看做是一个随机标签的样本，于是如果我们总能找到一个h使得每个<span class="math inline">\(h(x_i)=\sigma_i\)</span>，那么这个东西就等于1，那这个假设空间就很棒。</p>
+<div class="figure">
+<img src="1518883423948.png" alt="1518883423948">
+<p class="caption">1518883423948</p>
+</div>
 <p>最后这里考虑的是在数据集D下m个样本的函数空间F的复杂度，它的做法就是对所有从D中采样，而且是m个样本的数据集Z进行积分，也就是考虑所有m个样本的组合，然后求均值，最后的就是要求的平均复杂度，我们可以通过这个函数空间的复杂度来给出这泛化误差的界。</p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p><a href="http://www.cs.cmu.edu/~epxing/Class/10701-11f/recitation/recitation_4_Bin.pdf" target="_blank" rel="noopener">Computational Learning Theory</a></p>
+<h1 id="reference">Reference</h1>
+<p><a href="http://www.cs.cmu.edu/~epxing/Class/10701-11f/recitation/recitation_4_Bin.pdf" target="_blank" rel="noopener">Computational Learning Theory</a></p>
 <p><a href="https://stats.stackexchange.com/questions/87750/what-does-the-term-estimation-error-mean" target="_blank" rel="noopener">What does the term “Estimation error” mean?</a></p>
 <p><a href="http://drona.csa.iisc.ernet.in/~shivani/Teaching/E0370/Aug-2011/Lectures/10.pdf" target="_blank" rel="noopener">Excess Error, Approximation Error, and Estimation Error</a></p>
 <p><a href="https://www.zhihu.com/question/38607822" target="_blank" rel="noopener">如何通俗的理解机器学习中的VC维、shatter和break point</a></p>
@@ -362,7 +405,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#True-vs-Empirical-Risk"><span class="toc-number">1.</span> <span class="toc-text">True vs. Empirical Risk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-Theory"><span class="toc-number">2.</span> <span class="toc-text">Learning Theory</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Finite-Hypothesis-Space"><span class="toc-number">2.1.</span> <span class="toc-text">Finite Hypothesis Space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Infinite-Hypothesis-Space"><span class="toc-number">2.2.</span> <span class="toc-text">Infinite Hypothesis Space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Rademacher-复杂度"><span class="toc-number">2.3.</span> <span class="toc-text">Rademacher 复杂度</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#true-vs.-empirical-risk"><span class="toc-number">1.</span> <span class="toc-text">True vs. Empirical Risk</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#learning-theory"><span class="toc-number">2.</span> <span class="toc-text">Learning Theory</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#finite-hypothesis-space"><span class="toc-number">2.1.</span> <span class="toc-text">Finite Hypothesis Space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#infinite-hypothesis-space"><span class="toc-number">2.2.</span> <span class="toc-text">Infinite Hypothesis Space</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rademacher-复杂度"><span class="toc-number">2.3.</span> <span class="toc-text">Rademacher 复杂度</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a>
         
     </div>
     <style>
@@ -430,7 +473,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../19/PageRank/">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../21/LinkPrediction/">社交网络中的Link Prediction 链路预测</a></li><li class="post-list-item"><a class="post-list-link" href="../../19/PageRank/">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
@@ -545,6 +588,6 @@ MathJax.Hub.Queue(function() {
 
 <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
-  </div>
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </body>
 </html>

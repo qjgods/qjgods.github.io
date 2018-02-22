@@ -2,7 +2,7 @@
 <html lang="zh-Hans">
 <head>
 
-    <!--[if lt IE 9]>
+    <!-- hexo-inject:begin --><!-- hexo-inject:end --><!--[if lt IE 9]>
         <style>body {display: none; background: none !important} </style>
         <meta http-equiv="Refresh" Content="0; url=//outdatedbrowser.com/" />
     <![endif]-->
@@ -29,7 +29,7 @@
 <meta property="og:image" content="http://qjgods.github.io/2018/02/19/PageRank/1519052828959.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/19/PageRank/1519052801833.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/19/PageRank/1519053031829.png">
-<meta property="og:updated_time" content="2018-02-19T15:40:02.143Z">
+<meta property="og:updated_time" content="2018-02-21T06:43:19.818Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Introduction of PageRank and Application in Social Network with Higher-Order Structures">
 <meta name="twitter:description" content="本文介绍了PageRank算法，并介绍了一个在社交网络里面，利用了高阶结构来对PR算法改进的算法">
@@ -37,8 +37,6 @@
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
-
-    <link rel="alternate" href="/atom.xml" title="qjgods" type="application/atom+xml">
 
 
 
@@ -90,7 +88,7 @@
 
 
 
-    <script> yiliaConfig.rootUrl = "\/";</script>
+    <script> yiliaConfig.rootUrl = "\/";</script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 
 
 
@@ -99,7 +97,7 @@
 
 </head>
 <body>
-  <div id="container">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
     <div class="left-col">
     <div class="overlay"></div>
 <div class="intrude-less">
@@ -266,27 +264,83 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="PageRank算法介绍"><a href="#PageRank算法介绍" class="headerlink" title="PageRank算法介绍"></a>PageRank算法介绍</h2><p>pagerank算法的核心思想是，计算一个用户随机点击一个网站然后不停点击从而到达各个网站的概率。而一个网站的打开概率又取决于那些指向他自己的那些网站的概率，所以这个概率的计算是一个不断迭代的过程。</p>
+        <h2 id="pagerank算法介绍">PageRank算法介绍</h2>
+<p>pagerank算法的核心思想是，计算一个用户随机点击一个网站然后不停点击从而到达各个网站的概率。而一个网站的打开概率又取决于那些指向他自己的那些网站的概率，所以这个概率的计算是一个不断迭代的过程。</p>
 <p>一个简单的例子：B,C,D同时指向A，我们认为，BCD的PR是0.25，那么A的PR值就是0.75</p>
-<p><img src="1519042867642.png" alt="1519042867642"></p>
+<div class="figure">
+<img src="1519042867642.png" alt="1519042867642">
+<p class="caption">1519042867642</p>
+</div>
 <p>但是，如下图，如果网站D有3个外链，那么你从网站D跳到网站A的概率就不一定是100%了，这是我们要给它做一个权重衰减，我们给PR值除以3</p>
-<p><img src="1519048276921.png" alt="1519048276921"></p>
-<p>这个模型可以写作以下公式：<br>$$<br>PR(u) = \sum_{v \in B_u} \frac{PR(v)}{L(v)}<br>$$<br>其中L表示结点的出度，$B_u$是所有指向u的结点。然而一个用户在点击网页的时候是不会无限点下去了，他最终肯定会在某个结点上停止，于是，我们可以引入一个damping factor来表达这种关系，当你计算PR的时候，要乘一个衰减的系数来认为有一定概率会在上一个页面停止，而不会跳转到这个页面来。于是PR的公式可以改写成这样：<br>$$<br>PR(p_i) = \frac{1-d}{N} + d \sum_{p_j \in M(p_i)} \frac{PR (p_j)}{L(p_j)}<br>$$<br>d就是damping factor,d一般取0.85,N是结点数量，那个1-d/N是为了保证这个概率值在0到1之间。这个表达式可以写成矩阵的形式：<br>$$<br>\mathbf{R} =<br>\begin{bmatrix}<br>PR(p_1) \\<br>PR(p_2) \\<br>\vdots \\<br>PR(p_N)<br>\end{bmatrix}<br>$$</p>
-<p>$$<br>\mathbf{R} =<br>\begin{bmatrix}<br>{(1-d)/ N} \\<br>{(1-d) / N} \\<br>\vdots \\<br>{(1-d) / N}<br>\end{bmatrix}<br>+ d<br>\begin{bmatrix}<br>\ell(p_1,p_1) &amp; \ell(p_1,p_2) &amp; \cdots &amp; \ell(p_1,p_N) \\<br>\ell(p_2,p_1) &amp; \ddots &amp;  &amp; \vdots \\<br>\vdots &amp; &amp; \ell(p_i,p_j) &amp; \\<br>\ell(p_N,p_1) &amp; \cdots &amp; &amp; \ell(p_N,p_N)<br>\end{bmatrix}<br>\mathbf{R}<br>$$</p>
-<p>其中$l(p_i,p_j)$表示结点$p_i$对$p_j$的影响程度，比如在例子2，里面，$l(B,A)=1/2$.写成矩阵形式,这里P其实相当于邻接矩阵：<br>$$<br>\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}<br>$$<br>我们只要求解这个R，就能得到每个结点的PR值。</p>
-<h2 id="Ranking-Users-in-Social-Networks-with-Higher-Order-Structures"><a href="#Ranking-Users-in-Social-Networks-with-Higher-Order-Structures" class="headerlink" title="Ranking Users in Social Networks with Higher-Order Structures"></a>Ranking Users in Social Networks with Higher-Order Structures</h2><p>这里介绍一种改进的方法，这是在社交网络上的应用，在计算PR的时候，其实我们默认了，在一个网站上以相同概率跳转到其他的结点，但这其实在社交网络里面是有问题的。看下面的例子。</p>
+<div class="figure">
+<img src="1519048276921.png" alt="1519048276921">
+<p class="caption">1519048276921</p>
+</div>
+<p>这个模型可以写作以下公式： <span class="math display">\[
+PR(u) = \sum_{v \in B_u} \frac{PR(v)}{L(v)}
+\]</span> 其中L表示结点的出度，<span class="math inline">\(B_u\)</span>是所有指向u的结点。然而一个用户在点击网页的时候是不会无限点下去了，他最终肯定会在某个结点上停止，于是，我们可以引入一个damping factor来表达这种关系，当你计算PR的时候，要乘一个衰减的系数来认为有一定概率会在上一个页面停止，而不会跳转到这个页面来。于是PR的公式可以改写成这样： <span class="math display">\[
+PR(p_i) = \frac{1-d}{N} + d \sum_{p_j \in M(p_i)} \frac{PR (p_j)}{L(p_j)}
+\]</span> d就是damping factor,d一般取0.85,N是结点数量，那个1-d/N是为了保证这个概率值在0到1之间。这个表达式可以写成矩阵的形式： <span class="math display">\[
+\mathbf{R} =
+\begin{bmatrix}
+PR(p_1) \\
+PR(p_2) \\
+\vdots \\
+PR(p_N)
+\end{bmatrix}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{R} =
+\begin{bmatrix}
+{(1-d)/ N} \\
+{(1-d) / N} \\
+\vdots \\
+{(1-d) / N}
+\end{bmatrix}
++ d
+\begin{bmatrix}
+\ell(p_1,p_1) &amp; \ell(p_1,p_2) &amp; \cdots &amp; \ell(p_1,p_N) \\
+\ell(p_2,p_1) &amp; \ddots &amp;  &amp; \vdots \\
+\vdots &amp; &amp; \ell(p_i,p_j) &amp; \\
+\ell(p_N,p_1) &amp; \cdots &amp; &amp; \ell(p_N,p_N)
+\end{bmatrix}
+\mathbf{R}
+\]</span></p>
+<p>其中<span class="math inline">\(l(p_i,p_j)\)</span>表示结点<span class="math inline">\(p_i\)</span>对<span class="math inline">\(p_j\)</span>的影响程度，比如在例子2，里面，<span class="math inline">\(l(B,A)=1/2\)</span>.写成矩阵形式,这里P其实相当于邻接矩阵： <span class="math display">\[
+\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}
+\]</span> 我们只要求解这个R，就能得到每个结点的PR值。</p>
+<h2 id="ranking-users-in-social-networks-with-higher-order-structures">Ranking Users in Social Networks with Higher-Order Structures</h2>
+<p>这里介绍一种改进的方法，这是在社交网络上的应用，在计算PR的时候，其实我们默认了，在一个网站上以相同概率跳转到其他的结点，但这其实在社交网络里面是有问题的。看下面的例子。</p>
 <p>用户1同时关注了2,3,4在三个用户，但是，很显然，用户1其实是更信任用户2多过用户4的，因为用户1同时关注了2跟3.</p>
-<p><img src="1519050454857.png" alt="1519050454857"></p>
+<div class="figure">
+<img src="1519050454857.png" alt="1519050454857">
+<p class="caption">1519050454857</p>
+</div>
 <p>所以我们要做的就是，考虑这种三角结构：</p>
-<p><img src="1519052828959.png" alt="1519052828959"></p>
+<div class="figure">
+<img src="1519052828959.png" alt="1519052828959">
+<p class="caption">1519052828959</p>
+</div>
 <p>一共有7种。举个例子，当我们考虑M6时。</p>
-<p><img src="1519052801833.png" alt="1519052801833"></p>
+<div class="figure">
+<img src="1519052801833.png" alt="1519052801833">
+<p class="caption">1519052801833</p>
+</div>
 <p>对于结点3而言，M6结构一共出现了2次，分别是153,123.所以矩阵第1行第3列等于2.</p>
-<p>上面的这个考虑了三角结构的邻接矩阵可以用下面的公式计算。其中$B=W\odot W^T$,$U=W-B$,其中$\odot$是对应元素相乘</p>
-<p><img src="1519053031829.png" alt="1519053031829"></p>
-<p>最后对于PR的计算公式：<br>$$<br>\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}<br>$$<br>我们用<br>$$<br>H_{M_k}=\alpha W+(1-\alpha)W_{M_k}<br>$$<br>来替换掉P就能取得很好的效果。</p>
-<h2 id="扩展资料"><a href="#扩展资料" class="headerlink" title="扩展资料"></a>扩展资料</h2><p>其实PR只是目前页面排序的一个小小的权重，这是目前谷歌最新的<a href="https://en.wikipedia.org/wiki/Google_Penguin" target="_blank" rel="noopener">企鹅算法</a></p>
-<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p><a href="http://www.cse.ust.hk/~hzhaoaf/data/aaai2018-paper.pdf" target="_blank" rel="noopener">Zhao, Huan, et al. “Ranking Users in Social Networks with Higher-Order Structures.” (AAAI 2018)</a></p>
+<p>上面的这个考虑了三角结构的邻接矩阵可以用下面的公式计算。其中<span class="math inline">\(B=W\odot W^T\)</span>,<span class="math inline">\(U=W-B\)</span>,其中<span class="math inline">\(\odot\)</span>是对应元素相乘</p>
+<div class="figure">
+<img src="1519053031829.png" alt="1519053031829">
+<p class="caption">1519053031829</p>
+</div>
+<p>最后对于PR的计算公式： <span class="math display">\[
+\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}
+\]</span> 我们用 <span class="math display">\[
+H_{M_k}=\alpha W+(1-\alpha)W_{M_k}
+\]</span> 来替换掉P就能取得很好的效果。</p>
+<h2 id="扩展资料">扩展资料</h2>
+<p>其实PR只是目前页面排序的一个小小的权重，这是目前谷歌最新的<a href="https://en.wikipedia.org/wiki/Google_Penguin" target="_blank" rel="noopener">企鹅算法</a></p>
+<h2 id="参考资料">参考资料</h2>
+<p><a href="http://www.cse.ust.hk/~hzhaoaf/data/aaai2018-paper.pdf" target="_blank" rel="noopener">Zhao, Huan, et al. &quot;Ranking Users in Social Networks with Higher-Order Structures.&quot; (AAAI 2018)</a></p>
 <p><a href="https://en.wikipedia.org/wiki/PageRank" target="_blank" rel="noopener">PageRank-wiki</a></p>
 
       
@@ -299,7 +353,7 @@
         <p><span>本文标题:</span><a href="">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-02-19, 19:32:21</p>
-        <p><span>最后更新:</span>2018-02-19, 23:40:02</p>
+        <p><span>最后更新:</span>2018-02-21, 14:43:19</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="Introduction of PageRank and Application in Social Network with Higher-Order Structures">http://qjgods.github.io/2018/02/19/PageRank/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/02/19/PageRank/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -313,6 +367,12 @@
 
 
     <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="../../21/LinkPrediction/">
+                    社交网络中的Link Prediction 链路预测
+                </a>
+            </div>
         
         
             <div id="article-nav-older" class="article-nav-title">
@@ -329,7 +389,7 @@
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#PageRank算法介绍"><span class="toc-number">1.</span> <span class="toc-text">PageRank算法介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ranking-Users-in-Social-Networks-with-Higher-Order-Structures"><span class="toc-number">2.</span> <span class="toc-text">Ranking Users in Social Networks with Higher-Order Structures</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#扩展资料"><span class="toc-number">3.</span> <span class="toc-text">扩展资料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pagerank算法介绍"><span class="toc-number">1.</span> <span class="toc-text">PageRank算法介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ranking-users-in-social-networks-with-higher-order-structures"><span class="toc-number">2.</span> <span class="toc-text">Ranking Users in Social Networks with Higher-Order Structures</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#扩展资料"><span class="toc-number">3.</span> <span class="toc-text">扩展资料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
         
     </div>
     <style>
@@ -385,7 +445,9 @@
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="../../21/LinkPrediction/" title="上一篇: 社交网络中的Link Prediction 链路预测">
+                <i class="fa fa-angle-left"></i>
+            </a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
@@ -397,7 +459,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="../../18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../21/LinkPrediction/">社交网络中的Link Prediction 链路预测</a></li><li class="post-list-item"><a class="post-list-link" href="">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="../../18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
@@ -512,6 +574,6 @@ MathJax.Hub.Queue(function() {
 
 <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js">
 </script>
-  </div>
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </body>
 </html>
