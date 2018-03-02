@@ -188,6 +188,10 @@ a {
 .hide {
   display: none;
 }
+.MathJax_Display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
 @media screen and (max-width: 1040px) {
   .inner {
     width: 100%;
