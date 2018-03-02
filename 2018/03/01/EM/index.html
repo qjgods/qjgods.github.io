@@ -18,16 +18,16 @@
 <meta name="description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
 <meta name="keywords" content="机器学习">
 <meta property="og:type" content="article">
-<meta property="og:title" content="EM算法">
+<meta property="og:title" content="带你理解EM算法">
 <meta property="og:url" content="http://qjgods.github.io/2018/03/01/EM/index.html">
 <meta property="og:site_name" content="qjgods">
 <meta property="og:description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/eAndMStep.PNG">
-<meta property="og:updated_time" content="2018-03-02T06:27:36.872Z">
+<meta property="og:updated_time" content="2018-03-02T06:31:11.108Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="EM算法">
+<meta name="twitter:title" content="带你理解EM算法">
 <meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
 <meta name="twitter:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
 
@@ -59,7 +59,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>EM算法 | qjgods</title>
+<title>带你理解EM算法 | qjgods</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -239,7 +239,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      EM算法
+      带你理解EM算法
     </h1>
   
 
@@ -312,12 +312,12 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="">EM算法</a></p>
+        <p><span>本文标题:</span><a href="">带你理解EM算法</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-03-01, 09:52:19</p>
-        <p><span>最后更新:</span>2018-03-02, 14:27:36</p>
+        <p><span>最后更新:</span>2018-03-02, 14:31:11</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="" title="EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
+            <span>原始链接:</span><a class="post-url" href="" title="带你理解EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/01/EM/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
@@ -381,7 +381,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i
         </div>
         <script>
             window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"EM算法　| qjgods　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
+                "common":{"bdSnsKey":{},"bdText":"带你理解EM算法　| qjgods　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
         </script>
     
 
@@ -413,7 +413,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
