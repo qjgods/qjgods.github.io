@@ -36,7 +36,7 @@
 <meta property="og:image" content="http://qjgods.github.io/2018/02/18/Computational%20Learning%20Theory%20and%20Model%20Selection/1518882752502.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/18/Computational%20Learning%20Theory%20and%20Model%20Selection/1518882879727.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/18/Computational%20Learning%20Theory%20and%20Model%20Selection/1518883423948.png">
-<meta property="og:updated_time" content="2018-02-18T05:47:52.000Z">
+<meta property="og:updated_time" content="2018-03-02T13:19:43.179Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Computational Learning Theory and Model Selection">
 <meta name="twitter:description" content="本文介绍了计算学习理论笔记">
@@ -281,87 +281,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="true-vs.empirical-risk">True vs. Empirical Risk</h2>
-<p>当你有一个函数f的时候，你自然就想知道它到底是好还是坏，那么怎么评价呢？我们可以用一个叫risk的东西来衡量这个函数的风险，这里的risk可以直观地看做你函数的<strong>错误率</strong>。然而，根据no free lunch定理，显然没有一个函数永远是最优的，那这个risk到底是什么？它其实是在你数据分布<span class="math inline">\(\mathcal{D}\)</span>上的风险。而我们通常用empirical risk来对true risk进行估计，也就是对错误率估计,更一般empirical risk可以称为<strong>经验误差</strong>，当你的样本量越多的时候，你对函数f的风险的估计就越准确。</p>
-<p>True Risk:</p>
-<ul>
-<li>Classification - 误分类概率 <span class="math inline">\(P(f(X)\ne Y)\)</span></li>
-<li>Regression - Mean Squared Error <span class="math inline">\(\mathbb{E}[(f(X)-Y)^2]\)</span></li>
-</ul>
-<p>Empirical Risk:</p>
-<ul>
-<li>Classification - <span class="math inline">\(\frac{1}{n}\sum_{i=1}^n1_{f(X_i\ne Y_i)}\)</span></li>
-<li>Regression - <span class="math inline">\(\frac{1}{n}\sum_{i=1}^n{(f(X_i)- Y_i)^2}\)</span></li>
-</ul>
-<p>%可是我们仅仅用经验误差是不够的，因为经验误差只考虑了“训练集”的误差，我们可以很容易构造出一个函数使得他完美拟合所有数据。所以我们还要考虑泛化误差才行。</p>
-<p>我们设存在一个完美的risk,<span class="math inline">\(R^\*\)</span> ,还有一个从n个数据中估计出来的f以及它对应的risk，<span class="math inline">\(E[R(\hat{f_n})]\)</span>，我们定义一个Excess risk为<span class="math inline">\(E[R(\hat{f_n})]-R^*\)</span>,于是这个excess risk可以分解为两部分，分别是estimation error 和 approximation error.</p>
-<figure>
-<img src="1518535927188.png" alt="1518535927188"><figcaption>1518535927188</figcaption>
-</figure>
-<p>直观来看，estimation error，是因为缺少足够的样本，从而导致我们从函数族<span class="math inline">\(\mathcal{F}\)</span>选择模型时没法取得最优的模型而产生的误差。而approximation error是由于函数族<span class="math inline">\(\mathcal{F}\)</span>的限制而产生的误差，比如说线性回归，由于限制在了线性的空间中，而对非线性的数据存在误差。</p>
-<p>简单地说，estimation error是样本的问题，approximation error是模型复杂度的问题。</p>
-<p>然而模型越复杂，所需的样本也就越多，这就形成一个平衡，你需要一个合适的hypothese class <span class="math inline">\(\mathcal{F}\)</span>大小。</p>
-<figure>
-<img src="1518535937954.png" alt="1518535937954"><figcaption>1518535937954</figcaption>
-</figure>
-<h2 id="learning-theory">Learning Theory</h2>
-<p>Empirical Risk Minimization</p>
-<figure>
-<img src="1518537111943.png" alt="1518537111943"><figcaption>1518537111943</figcaption>
-</figure>
-<p>三个重要的引理</p>
-<figure>
-<img src="1518537123984.png" alt="1518537123984"><figcaption>1518537123984</figcaption>
-</figure>
-<figure>
-<img src="1518881523085.png" alt="1518881523085"><figcaption>1518881523085</figcaption>
-</figure>
-<p>使用这几个引理可以让我们证明在learning theory中非常重要的结论。第三个定理是，一般套路就是考虑只有一个样本改变后两个相减的差，小于某个d，然后就可以套这个不等式，然后令最右边的是<span class="math inline">\(\delta\)</span>，就得出了一个界。</p>
-<p>现在我们来定义一下Hypothesis Class，数据集不同的划分方式其实就对应了不同的假设类，而所有的划分方法就组成了假设类<span class="math inline">\(\mathcal{H}\)</span>. 这个是跟，“概念类”对应的一个概念，所谓概念类其实就是数据正确的标签<span class="math inline">\(\mathcal{C}\)</span>.，所以我们要做的事情就是搜索出一个最优的假设h，使得逼近正确的标签。</p>
-<h3 id="finite-hypothesis-space">Finite Hypothesis Space</h3>
-<p>对于有限的假设空间，有以下定理</p>
-<figure>
-<img src="1518881888335.png" alt="1518881888335"><figcaption>1518881888335</figcaption>
-</figure>
-<p>上面这个引理是由hoeffding 不等式的出来的，因为这里的<span class="math inline">\(\hat{E}\)</span>对应的是经验误差，是对E的近似，所以直接用hoeffding不等式。</p>
-<figure>
-<img src="1518877689847.png" alt="1518877689847"><figcaption>1518877689847</figcaption>
-</figure>
-<p>令<span class="math inline">\(\delta=2|\mathcal{H}|\exp(-2m\epsilon^2)\)</span>即可得12.19</p>
-<p>上面定理用了引理1的集合的不等式。通过最下面的这个界可以看到，当<span class="math inline">\(|H|\)</span>越大的时候这个界是越大的。</p>
-<h3 id="infinite-hypothesis-space">Infinite Hypothesis Space</h3>
-<p>当假设类是无限时，我们可以构造出一个叫增长函数的东西，用来表示假设空间H对m个样本所能赋予的最大可能结果数。</p>
-<figure>
-<img src="1518882559587.png" alt="1518882559587"><figcaption>1518882559587</figcaption>
-</figure>
-<p>如果我们的假设空间能够对这所有m个样本赋予任意的标签，那么H在m个样本下是可以打散这个数据集D的，那么我们定义那个可以打散的m的最大值，称为H的VC维。也就是说，VC维是用于衡量假设空间<span class="math inline">\(|H|\)</span>大小的一个东西。</p>
-<figure>
-<img src="1518882573822.png" alt="1518882573822"><figcaption>1518882573822</figcaption>
-</figure>
-<p>这样我们就能用VC维来构造出经验误差的界,VC维有点像有限假设类下的类比。</p>
-<figure>
-<img src="1518882637789.png" alt="1518882637789"><figcaption>1518882637789</figcaption>
-</figure>
-<h3 id="rademacher-复杂度">Rademacher 复杂度</h3>
-<p>Rademacher 复杂度，他是对VC维的一个改进，因为VC维在刻画假设空间的大小时，并没有考虑数据的分布，这使得他的界非常松，实际意义比较小。</p>
-<figure>
-<img src="1518882752502.png" alt="1518882752502"><figcaption>1518882752502</figcaption>
-</figure>
-<p>这里<span class="math inline">\(y_i\)</span>取1，-1 ，然而这里yi其实是指现实中的值，而如果考虑更一般的情况，我们将y_i换成一个1，-1的随机变量，于是，问题转化为，我们希望找到一个h，使得这个最大（等价于经验误差最小）</p>
-<figure>
-<img src="1518882879727.png" alt="1518882879727"><figcaption>1518882879727</figcaption>
-</figure>
-<p>这里我的理解是，因为sup是在<span class="math inline">\(\sigma_i\)</span>外面的，所以当我们选择h的时候，<span class="math inline">\(\sigma_i\)</span>相当于是固定的，也就是可以看做是一个随机标签的样本，于是如果我们总能找到一个h使得每个<span class="math inline">\(h(x_i)=\sigma_i\)</span>，那么这个东西就等于1，那这个假设空间就很棒。</p>
-<figure>
-<img src="1518883423948.png" alt="1518883423948"><figcaption>1518883423948</figcaption>
-</figure>
-<p>最后这里考虑的是在数据集D下m个样本的函数空间F的复杂度，它的做法就是对所有从D中采样，而且是m个样本的数据集Z进行积分，也就是考虑所有m个样本的组合，然后求均值，最后的就是要求的平均复杂度，我们可以通过这个函数空间的复杂度来给出这泛化误差的界。</p>
-<h1 id="reference">Reference</h1>
-<p><a href="http://www.cs.cmu.edu/~epxing/Class/10701-11f/recitation/recitation_4_Bin.pdf" target="_blank" rel="noopener">Computational Learning Theory</a></p>
-<p><a href="https://stats.stackexchange.com/questions/87750/what-does-the-term-estimation-error-mean" target="_blank" rel="noopener">What does the term “Estimation error” mean?</a></p>
-<p><a href="http://drona.csa.iisc.ernet.in/~shivani/Teaching/E0370/Aug-2011/Lectures/10.pdf" target="_blank" rel="noopener">Excess Error, Approximation Error, and Estimation Error</a></p>
-<p><a href="https://www.zhihu.com/question/38607822" target="_blank" rel="noopener">如何通俗的理解机器学习中的VC维、shatter和break point</a></p>
-
+        <h2 id="true-vs.empirical-risk">True vs. Empirical Risk</h2><p>当你有一个函数f的时候，你自然就想知道它到底是好还是坏，那么怎么评价呢？我们可以用一个叫risk的东西来衡量这个函数的风险，这里的risk可以直观地看做你函数的<strong>错误率</strong>。然而，根据no free lunch定理，显然没有一个函数永远是最优的，那这个risk到底是什么？它其实是在你数据分布<span class="math inline">\(\mathcal{D}\)</span>上的风险。而我们通常用empirical risk来对true risk进行估计，也就是对错误率估计,更一般empirical risk可以称为<strong>经验误差</strong>，当你的样本量越多的时候，你对函数f的风险的估计就越准确。</p><p>True Risk:</p><ul><li>Classification - 误分类概率 <span class="math inline">\(P(f(X)\ne Y)\)</span></li><li>Regression - Mean Squared Error <span class="math inline">\(\mathbb{E}[(f(X)-Y)^2]\)</span></li></ul><p>Empirical Risk:</p><ul><li>Classification - <span class="math inline">\(\frac{1}{n}\sum_{i=1}^n1_{f(X_i\ne Y_i)}\)</span></li><li>Regression - <span class="math inline">\(\frac{1}{n}\sum_{i=1}^n{(f(X_i)- Y_i)^2}\)</span></li></ul><p>%可是我们仅仅用经验误差是不够的，因为经验误差只考虑了“训练集”的误差，我们可以很容易构造出一个函数使得他完美拟合所有数据。所以我们还要考虑泛化误差才行。</p><p>我们设存在一个完美的risk,<span class="math inline">\(R^*\)</span> ,还有一个从n个数据中估计出来的f以及它对应的risk，<span class="math inline">\(E[R(\hat{f_n})]\)</span>，我们定义一个Excess risk为<span class="math inline">\(E[R(\hat{f_n})]-R^*\)</span>,于是这个excess risk可以分解为两部分，分别是estimation error 和 approximation error.</p><figure><img src="1518535927188.png" alt="1518535927188"><figcaption>1518535927188</figcaption></figure><p>直观来看，estimation error，是因为缺少足够的样本，从而导致我们从函数族<span class="math inline">\(\mathcal{F}\)</span>选择模型时没法取得最优的模型而产生的误差。而approximation error是由于函数族<span class="math inline">\(\mathcal{F}\)</span>的限制而产生的误差，比如说线性回归，由于限制在了线性的空间中，而对非线性的数据存在误差。</p><p>简单地说，estimation error是样本的问题，approximation error是模型复杂度的问题。</p><p>然而模型越复杂，所需的样本也就越多，这就形成一个平衡，你需要一个合适的hypothese class <span class="math inline">\(\mathcal{F}\)</span>大小。</p><figure><img src="1518535937954.png" alt="1518535937954"><figcaption>1518535937954</figcaption></figure><h2 id="learning-theory">Learning Theory</h2><p>Empirical Risk Minimization</p><figure><img src="1518537111943.png" alt="1518537111943"><figcaption>1518537111943</figcaption></figure><p>三个重要的引理</p><figure><img src="1518537123984.png" alt="1518537123984"><figcaption>1518537123984</figcaption></figure><figure><img src="1518881523085.png" alt="1518881523085"><figcaption>1518881523085</figcaption></figure><p>使用这几个引理可以让我们证明在learning theory中非常重要的结论。第三个定理是，一般套路就是考虑只有一个样本改变后两个相减的差，小于某个d，然后就可以套这个不等式，然后令最右边的是<span class="math inline">\(\delta\)</span>，就得出了一个界。</p><p>现在我们来定义一下Hypothesis Class，数据集不同的划分方式其实就对应了不同的假设类，而所有的划分方法就组成了假设类<span class="math inline">\(\mathcal{H}\)</span>. 这个是跟，“概念类”对应的一个概念，所谓概念类其实就是数据正确的标签<span class="math inline">\(\mathcal{C}\)</span>.，所以我们要做的事情就是搜索出一个最优的假设h，使得逼近正确的标签。</p><h3 id="finite-hypothesis-space">Finite Hypothesis Space</h3><p>对于有限的假设空间，有以下定理</p><figure><img src="1518881888335.png" alt="1518881888335"><figcaption>1518881888335</figcaption></figure><p>上面这个引理是由hoeffding 不等式的出来的，因为这里的<span class="math inline">\(\hat{E}\)</span>对应的是经验误差，是对E的近似，所以直接用hoeffding不等式。</p><figure><img src="1518877689847.png" alt="1518877689847"><figcaption>1518877689847</figcaption></figure><p>令<span class="math inline">\(\delta=2|\mathcal{H}|\exp(-2m\epsilon^2)\)</span>即可得12.19</p><p>上面定理用了引理1的集合的不等式。通过最下面的这个界可以看到，当<span class="math inline">\(|H|\)</span>越大的时候这个界是越大的。</p><h3 id="infinite-hypothesis-space">Infinite Hypothesis Space</h3><p>当假设类是无限时，我们可以构造出一个叫增长函数的东西，用来表示假设空间H对m个样本所能赋予的最大可能结果数。</p><figure><img src="1518882559587.png" alt="1518882559587"><figcaption>1518882559587</figcaption></figure><p>如果我们的假设空间能够对这所有m个样本赋予任意的标签，那么H在m个样本下是可以打散这个数据集D的，那么我们定义那个可以打散的m的最大值，称为H的VC维。也就是说，VC维是用于衡量假设空间<span class="math inline">\(|H|\)</span>大小的一个东西。</p><figure><img src="1518882573822.png" alt="1518882573822"><figcaption>1518882573822</figcaption></figure><p>这样我们就能用VC维来构造出经验误差的界,VC维有点像有限假设类下的类比。</p><figure><img src="1518882637789.png" alt="1518882637789"><figcaption>1518882637789</figcaption></figure><h3 id="rademacher-复杂度">Rademacher 复杂度</h3><p>Rademacher 复杂度，他是对VC维的一个改进，因为VC维在刻画假设空间的大小时，并没有考虑数据的分布，这使得他的界非常松，实际意义比较小。</p><figure><img src="1518882752502.png" alt="1518882752502"><figcaption>1518882752502</figcaption></figure><p>这里<span class="math inline">\(y_i\)</span>取1，-1 ，然而这里yi其实是指现实中的值，而如果考虑更一般的情况，我们将y_i换成一个1，-1的随机变量，于是，问题转化为，我们希望找到一个h，使得这个最大（等价于经验误差最小）</p><figure><img src="1518882879727.png" alt="1518882879727"><figcaption>1518882879727</figcaption></figure><p>这里我的理解是，因为sup是在<span class="math inline">\(\sigma_i\)</span>外面的，所以当我们选择h的时候，<span class="math inline">\(\sigma_i\)</span>相当于是固定的，也就是可以看做是一个随机标签的样本，于是如果我们总能找到一个h使得每个<span class="math inline">\(h(x_i)=\sigma_i\)</span>，那么这个东西就等于1，那这个假设空间就很棒。</p><figure><img src="1518883423948.png" alt="1518883423948"><figcaption>1518883423948</figcaption></figure><p>最后这里考虑的是在数据集D下m个样本的函数空间F的复杂度，它的做法就是对所有从D中采样，而且是m个样本的数据集Z进行积分，也就是考虑所有m个样本的组合，然后求均值，最后的就是要求的平均复杂度，我们可以通过这个函数空间的复杂度来给出这泛化误差的界。</p><h1 id="reference">Reference</h1><p><a href="http://www.cs.cmu.edu/~epxing/Class/10701-11f/recitation/recitation_4_Bin.pdf" target="_blank" rel="noopener">Computational Learning Theory</a></p><p><a href="https://stats.stackexchange.com/questions/87750/what-does-the-term-estimation-error-mean" target="_blank" rel="noopener">What does the term “Estimation error” mean?</a></p><p><a href="http://drona.csa.iisc.ernet.in/~shivani/Teaching/E0370/Aug-2011/Lectures/10.pdf" target="_blank" rel="noopener">Excess Error, Approximation Error, and Estimation Error</a></p><p><a href="https://www.zhihu.com/question/38607822" target="_blank" rel="noopener">如何通俗的理解机器学习中的VC维、shatter和break point</a></p>
       
     </div>
     
@@ -372,7 +292,7 @@
         <p><span>本文标题:</span><a href="">Computational Learning Theory and Model Selection</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-02-18, 16:50:26</p>
-        <p><span>最后更新:</span>2018-02-18, 13:47:52</p>
+        <p><span>最后更新:</span>2018-03-02, 21:19:43</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="Computational Learning Theory and Model Selection">http://qjgods.github.io/2018/02/18/Computational Learning Theory and Model Selection/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/02/18/Computational Learning Theory and Model Selection/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
