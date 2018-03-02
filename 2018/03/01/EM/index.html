@@ -88,6 +88,8 @@
 
 
 
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5a994d1e315350b4"></script>
+
 
 
     <script>
@@ -270,7 +272,49 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>很多时候，我们都要最大化似然度来求得一个参数$$的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。下面是该似然度的式子，其中z表示不可观测的变量，x表示可观测的变量，由于z是不可观测的，所以，要求似然度，我们必须要对z求和或求积分(连续的时候求积分，离散的时候求和)。</p><p><span class="math display">\[ \mathcal{L}( \theta ) =\sum ^{N}_{i=1}\log p( x_{i} |\theta ) =\sum ^{N}_{i=1}\log\left[\sum _{z_{i}} p( x_{i} ,z_{i} |\theta )\right] \]</span> 可以看到上面的这个式子，如果不存在隐变量的话，那么那个log是直接作用与p的，如果p恰好是指数族分布，那么这个似然度就非常好求，但是有隐变量的时候，log被一个<span class="math inline">\(\sum _{z}\)</span>给截断的，这就使得这个式子变得很难优化。</p><p>这个问题的关键在于，<span class="math inline">\(\log p( x_{i} |\theta )\)</span>很难优化，但是<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>却很好优化,比如说聚类的时候，你提前知道所有样本的类别了，那你计算每个类别的中心距离就太简单了，但是要优化<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>的前提是，你要看得到隐变量的取值才行啊，然而隐变量是看不到的。EM算法通过一个巧妙的构造，让<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>和似然度<span class="math inline">\(p( x_{i} |\theta )\)</span>的下界联系起来，这是我们只要优化下界就能代替优化似然度本身。</p><p>接下来我们看一下对于单个样本<span class="math inline">\(p( x_{i})\)</span>似然度的下界是什么东西。在这里我们引入了<span class="math inline">\(z_{i}\)</span>的分布<span class="math inline">\(q_{i}( z_{i})\)</span></p><p><span class="math display">\[ \begin{aligned} \log p( x_{i} |\theta ) &amp; =\log p( x_{i} ,z_{i}) -\log p( z_{i} |x_{i})\\ &amp; =\log\left(\frac{p( x_{i} ,z_{i})}{q_{i}( z_{i})}\right) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\ &amp; =\log p( x_{i} ,z_{i}) -\log q_{i}( z_{i}) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\ &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz-\int q_{i}( z_{i})\log q( z_{i}) dz-\int q_{i}( z_{i})\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right) dz( 两边同时对z求期望)\\ &amp; =\underbrace{E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})}_{ELOB_{i}} +KL( q_{i}( z_{i}) ||p( z_{i} |x_{i})) \end{aligned} \]</span> 我们知道<span class="math inline">\(KL( q( z_{i}) ||p( z_{i} |x_{i})) \geqslant 0\)</span>，所以这个似然度一定有 <span class="math display">\[ \log p( x_{i}) \geqslant E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i}) \]</span> 可以看到对数似然度被分解成了两部分，一个是evidence lower bound(ELOB)，似然度的下界，另一个是KL距离，不管q是什么分布，这两部分加起来肯定是一样的。</p><figure><img src="klsplitup.png" alt="ELOB与KL"><figcaption>ELOB与KL</figcaption></figure><p>图中的L是我们的ELOB。</p><p>也就是说，只要我们令KL距离为0，此时 <span class="math inline">\(q(z) =p(z|x)\)</span> ，那么ELOB就等于似然度的值了。这就意味着我们最大化 <span class="math inline">\(\theta\)</span> 的时候，不再需要对<span class="math inline">\(\log p(x|\theta)\)</span>做，只要找到 <span class="math inline">\(\theta\)</span> 使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里<span class="math inline">\(H(q)\)</span> 是q的熵，与 <span class="math inline">\(\theta\)</span> 无关只与分布q有关，所以不用管。于是我们把 <span class="math inline">\(q(z) =p(z|x)\)</span> 代入到ELOB中得到 <span class="math display">\[ \begin{aligned} ELOB_{i} &amp; =E_{z_{i}}(\log p( x_{i} ,z_{i})) +const\\ &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz+const\\ &amp; =\int p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) dz+const\\ &amp; =\sum _{z_{i}} p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) +const( 如果z是离散的) \end{aligned} \]</span></p><figure><img src="eAndMStep.PNG" alt="EM算法示意图"><figcaption>EM算法示意图</figcaption></figure><p>EM算法，示意图，E步，把KL设为0，蓝色的线往上移，使得ELOB=似然度，M步，最大化ELOB，使得似然度增大，红色的线往上移，然后我们不断重复直到收敛。</p><p>考虑所有样本，正式的EM框架：</p><p>E步：把<span class="math inline">\(q_{i}( z_{i}) =p( z_{i} |x_{i})\)</span>代入到下界中，再把常数项剔除， <span class="math display">\[ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{i},\theta^{t-1})\log p( x_{i} ,z_{i},\theta)=\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i} |\theta ) |x_{i} ,\theta ^{t-1}\right] \]</span> M步：最大化下界ELOB <span class="math display">\[ \theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right) \]</span></p><p>M步2：我们还可以做MAP估计，只需要在Q加上参数的对数先验就可以轻松完成，E步没有任何变化 <span class="math display">\[ \theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right) +\log p( \theta ) \]</span> 在MAP估计的时候，不仅需要考虑下界的最大化，还需要考虑先验对参数的影响。</p>
+        <p>很多时候，我们都要最大化似然度来求得一个参数$$的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。下面是该似然度的式子，其中z表示不可观测的变量，x表示可观测的变量，由于z是不可观测的，所以，要求似然度，我们必须要对z求和或求积分(连续的时候求积分，离散的时候求和)。</p>
+<p><span class="math display">\[
+\mathcal{L}( \theta ) =\sum ^{N}_{i=1}\log p( x_{i} |\theta ) =\sum ^{N}_{i=1}\log\left[\sum _{z_{i}} p( x_{i} ,z_{i} |\theta )\right]
+\]</span> 可以看到上面的这个式子，如果不存在隐变量的话，那么那个log是直接作用与p的，如果p恰好是指数族分布，那么这个似然度就非常好求，但是有隐变量的时候，log被一个<span class="math inline">\(\sum _{z}\)</span>给截断的，这就使得这个式子变得很难优化。</p>
+<p>这个问题的关键在于，<span class="math inline">\(\log p( x_{i} |\theta )\)</span>很难优化，但是<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>却很好优化,比如说聚类的时候，你提前知道所有样本的类别了，那你计算每个类别的中心距离就太简单了，但是要优化<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>的前提是，你要看得到隐变量的取值才行啊，然而隐变量是看不到的。EM算法通过一个巧妙的构造，让<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>和似然度<span class="math inline">\(p( x_{i} |\theta )\)</span>的下界联系起来，这是我们只要优化下界就能代替优化似然度本身。</p>
+<p>接下来我们看一下对于单个样本<span class="math inline">\(p( x_{i})\)</span>似然度的下界是什么东西。在这里我们引入了<span class="math inline">\(z_{i}\)</span>的分布<span class="math inline">\(q_{i}( z_{i})\)</span></p>
+<p><span class="math display">\[
+\begin{aligned}
+\log p( x_{i} |\theta ) &amp; =\log p( x_{i} ,z_{i}) -\log p( z_{i} |x_{i})\\
+ &amp; =\log\left(\frac{p( x_{i} ,z_{i})}{q_{i}( z_{i})}\right) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\
+ &amp; =\log p( x_{i} ,z_{i}) -\log q_{i}( z_{i}) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\
+ &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz-\int q_{i}( z_{i})\log q( z_{i}) dz-\int q_{i}( z_{i})\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right) dz( 两边同时对z求期望)\\
+ &amp; =\underbrace{E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})}_{ELOB_{i}} +KL( q_{i}( z_{i}) ||p( z_{i} |x_{i}))
+\end{aligned}
+\]</span> 我们知道<span class="math inline">\(KL( q( z_{i}) ||p( z_{i} |x_{i})) \geqslant 0\)</span>，所以这个似然度一定有 <span class="math display">\[
+\log p( x_{i}) \geqslant E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})
+\]</span> 可以看到对数似然度被分解成了两部分，一个是evidence lower bound(ELOB)，似然度的下界，另一个是KL距离，不管q是什么分布，这两部分加起来肯定是一样的。</p>
+<figure>
+<img src="klsplitup.png" alt="ELOB与KL"><figcaption>ELOB与KL</figcaption>
+</figure>
+<p>图中的L是我们的ELOB。</p>
+<p>也就是说，只要我们令KL距离为0，此时 <span class="math inline">\(q(z) =p(z|x)\)</span> ，那么ELOB就等于似然度的值了。这就意味着我们最大化 <span class="math inline">\(\theta\)</span> 的时候，不再需要对<span class="math inline">\(\log p(x|\theta)\)</span>做，只要找到 <span class="math inline">\(\theta\)</span> 使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里<span class="math inline">\(H(q)\)</span> 是q的熵，与 <span class="math inline">\(\theta\)</span> 无关只与分布q有关，所以不用管。于是我们把 <span class="math inline">\(q(z) =p(z|x)\)</span> 代入到ELOB中得到 <span class="math display">\[
+\begin{aligned}
+ELOB_{i} &amp; =E_{z_{i}}(\log p( x_{i} ,z_{i})) +const\\
+ &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz+const\\
+ &amp; =\int p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) dz+const\\
+ &amp; =\sum _{z_{i}} p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) +const( 如果z是离散的)
+\end{aligned}
+\]</span></p>
+<figure>
+<img src="eAndMStep.PNG" alt="EM算法示意图"><figcaption>EM算法示意图</figcaption>
+</figure>
+<p>EM算法，示意图，E步，把KL设为0，蓝色的线往上移，使得ELOB=似然度，M步，最大化ELOB，使得似然度增大，红色的线往上移，然后我们不断重复直到收敛。</p>
+<p>考虑所有样本，正式的EM框架：</p>
+<p>E步：把<span class="math inline">\(q_{i}( z_{i}) =p( z_{i} |x_{i})\)</span>代入到下界中，再把常数项剔除， <span class="math display">\[
+Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{i},\theta^{t-1})\log p( x_{i} ,z_{i},\theta)=\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i} |\theta ) |x_{i} ,\theta ^{t-1}\right]
+\]</span> M步：最大化下界ELOB <span class="math display">\[
+\theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right)
+\]</span></p>
+<p>M步2：我们还可以做MAP估计，只需要在Q加上参数的对数先验就可以轻松完成，E步没有任何变化 <span class="math display">\[
+\theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right) +\log p( \theta )
+\]</span> 在MAP估计的时候，不仅需要考虑下界的最大化，还需要考虑先验对参数的影响。</p>
+
       
     </div>
     
@@ -336,21 +380,9 @@
     
 <div class="share">
     
-        <div class="bdsharebuttonbox">
-            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
-            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
-            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
-            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
-            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
-            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
-            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
-        </div>
-        <script>
-            window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"带你理解EM算法　| qjgods　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
-        </script>
-    
 
+    
+        <div class="addthis_sharing_toolbox"></div>
     
 </div>
 

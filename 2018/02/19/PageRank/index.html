@@ -92,6 +92,8 @@
 
 
 
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5a994d1e315350b4"></script>
+
 
 
     <script>
@@ -274,7 +276,79 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <h2 id="pagerank算法介绍">PageRank算法介绍</h2><p>pagerank算法的核心思想是，计算一个用户随机点击一个网站然后不停点击从而到达各个网站的概率。而一个网站的打开概率又取决于那些指向他自己的那些网站的概率，所以这个概率的计算是一个不断迭代的过程。</p><p>一个简单的例子：B,C,D同时指向A，我们认为，BCD的PR是0.25，那么A的PR值就是0.75</p><figure><img src="1519042867642.png" alt="1519042867642"><figcaption>1519042867642</figcaption></figure><p>但是，如下图，如果网站D有3个外链，那么你从网站D跳到网站A的概率就不一定是100%了，这是我们要给它做一个权重衰减，我们给PR值除以3</p><figure><img src="1519048276921.png" alt="1519048276921"><figcaption>1519048276921</figcaption></figure><p>这个模型可以写作以下公式： <span class="math display">\[ PR(u) = \sum_{v \in B_u} \frac{PR(v)}{L(v)} \]</span> 其中L表示结点的出度，<span class="math inline">\(B_u\)</span>是所有指向u的结点。然而一个用户在点击网页的时候是不会无限点下去了，他最终肯定会在某个结点上停止，于是，我们可以引入一个damping factor来表达这种关系，当你计算PR的时候，要乘一个衰减的系数来认为有一定概率会在上一个页面停止，而不会跳转到这个页面来。于是PR的公式可以改写成这样： <span class="math display">\[ PR(p_i) = \frac{1-d}{N} + d \sum_{p_j \in M(p_i)} \frac{PR (p_j)}{L(p_j)} \]</span> d就是damping factor,d一般取0.85,N是结点数量，那个1-d/N是为了保证这个概率值在0到1之间。这个表达式可以写成矩阵的形式： <span class="math display">\[ \mathbf{R} = \begin{bmatrix} PR(p_1) \\ PR(p_2) \\ \vdots \\ PR(p_N) \end{bmatrix} \]</span></p><p><span class="math display">\[ \mathbf{R} = \begin{bmatrix} {(1-d)/ N} \\ {(1-d) / N} \\ \vdots \\ {(1-d) / N} \end{bmatrix} + d \begin{bmatrix} \ell(p_1,p_1) &amp; \ell(p_1,p_2) &amp; \cdots &amp; \ell(p_1,p_N) \\ \ell(p_2,p_1) &amp; \ddots &amp; &amp; \vdots \\ \vdots &amp; &amp; \ell(p_i,p_j) &amp; \\ \ell(p_N,p_1) &amp; \cdots &amp; &amp; \ell(p_N,p_N) \end{bmatrix} \mathbf{R} \]</span></p><p>其中<span class="math inline">\(l(p_i,p_j)\)</span>表示结点<span class="math inline">\(p_i\)</span>对<span class="math inline">\(p_j\)</span>的影响程度，比如在例子2，里面，<span class="math inline">\(l(B,A)=1/2\)</span>.写成矩阵形式,这里P其实相当于邻接矩阵： <span class="math display">\[ \mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1} \]</span> 我们只要求解这个R，就能得到每个结点的PR值。</p><h2 id="ranking-users-in-social-networks-with-higher-order-structures">Ranking Users in Social Networks with Higher-Order Structures</h2><p>这里介绍一种改进的方法，这是在社交网络上的应用，在计算PR的时候，其实我们默认了，在一个网站上以相同概率跳转到其他的结点，但这其实在社交网络里面是有问题的。看下面的例子。</p><p>用户1同时关注了2,3,4在三个用户，但是，很显然，用户1其实是更信任用户2多过用户4的，因为用户1同时关注了2跟3.</p><figure><img src="1519050454857.png" alt="1519050454857"><figcaption>1519050454857</figcaption></figure><p>所以我们要做的就是，考虑这种三角结构：</p><figure><img src="1519052828959.png" alt="1519052828959"><figcaption>1519052828959</figcaption></figure><p>一共有7种。举个例子，当我们考虑M6时。</p><figure><img src="1519052801833.png" alt="1519052801833"><figcaption>1519052801833</figcaption></figure><p>对于结点3而言，M6结构一共出现了2次，分别是153,123.所以矩阵第1行第3列等于2.</p><p>上面的这个考虑了三角结构的邻接矩阵可以用下面的公式计算。其中<span class="math inline">\(B=W\odot W^T\)</span>,<span class="math inline">\(U=W-B\)</span>,其中<span class="math inline">\(\odot\)</span>是对应元素相乘</p><figure><img src="1519053031829.png" alt="1519053031829"><figcaption>1519053031829</figcaption></figure><p>最后对于PR的计算公式： <span class="math display">\[ \mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1} \]</span> 我们用 <span class="math display">\[ H_{M_k}=\alpha W+(1-\alpha)W_{M_k} \]</span> 来替换掉P就能取得很好的效果。</p><h2 id="扩展资料">扩展资料</h2><p>其实PR只是目前页面排序的一个小小的权重，这是目前谷歌最新的<a href="https://en.wikipedia.org/wiki/Google_Penguin" target="_blank" rel="noopener">企鹅算法</a></p><h2 id="参考资料">参考资料</h2><p><a href="http://www.cse.ust.hk/~hzhaoaf/data/aaai2018-paper.pdf" target="_blank" rel="noopener">Zhao, Huan, et al. “Ranking Users in Social Networks with Higher-Order Structures.” (AAAI 2018)</a></p><p><a href="https://en.wikipedia.org/wiki/PageRank" target="_blank" rel="noopener">PageRank-wiki</a></p>
+        <h2 id="pagerank算法介绍">PageRank算法介绍</h2>
+<p>pagerank算法的核心思想是，计算一个用户随机点击一个网站然后不停点击从而到达各个网站的概率。而一个网站的打开概率又取决于那些指向他自己的那些网站的概率，所以这个概率的计算是一个不断迭代的过程。</p>
+<p>一个简单的例子：B,C,D同时指向A，我们认为，BCD的PR是0.25，那么A的PR值就是0.75</p>
+<figure>
+<img src="1519042867642.png" alt="1519042867642"><figcaption>1519042867642</figcaption>
+</figure>
+<p>但是，如下图，如果网站D有3个外链，那么你从网站D跳到网站A的概率就不一定是100%了，这是我们要给它做一个权重衰减，我们给PR值除以3</p>
+<figure>
+<img src="1519048276921.png" alt="1519048276921"><figcaption>1519048276921</figcaption>
+</figure>
+<p>这个模型可以写作以下公式： <span class="math display">\[
+PR(u) = \sum_{v \in B_u} \frac{PR(v)}{L(v)}
+\]</span> 其中L表示结点的出度，<span class="math inline">\(B_u\)</span>是所有指向u的结点。然而一个用户在点击网页的时候是不会无限点下去了，他最终肯定会在某个结点上停止，于是，我们可以引入一个damping factor来表达这种关系，当你计算PR的时候，要乘一个衰减的系数来认为有一定概率会在上一个页面停止，而不会跳转到这个页面来。于是PR的公式可以改写成这样： <span class="math display">\[
+PR(p_i) = \frac{1-d}{N} + d \sum_{p_j \in M(p_i)} \frac{PR (p_j)}{L(p_j)}
+\]</span> d就是damping factor,d一般取0.85,N是结点数量，那个1-d/N是为了保证这个概率值在0到1之间。这个表达式可以写成矩阵的形式： <span class="math display">\[
+\mathbf{R} =
+\begin{bmatrix}
+PR(p_1) \\
+PR(p_2) \\
+\vdots \\
+PR(p_N)
+\end{bmatrix}
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{R} =
+\begin{bmatrix}
+{(1-d)/ N} \\
+{(1-d) / N} \\
+\vdots \\
+{(1-d) / N}
+\end{bmatrix}
++ d
+\begin{bmatrix}
+\ell(p_1,p_1) &amp; \ell(p_1,p_2) &amp; \cdots &amp; \ell(p_1,p_N) \\
+\ell(p_2,p_1) &amp; \ddots &amp;  &amp; \vdots \\
+\vdots &amp; &amp; \ell(p_i,p_j) &amp; \\
+\ell(p_N,p_1) &amp; \cdots &amp; &amp; \ell(p_N,p_N)
+\end{bmatrix}
+\mathbf{R}
+\]</span></p>
+<p>其中<span class="math inline">\(l(p_i,p_j)\)</span>表示结点<span class="math inline">\(p_i\)</span>对<span class="math inline">\(p_j\)</span>的影响程度，比如在例子2，里面，<span class="math inline">\(l(B,A)=1/2\)</span>.写成矩阵形式,这里P其实相当于邻接矩阵： <span class="math display">\[
+\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}
+\]</span> 我们只要求解这个R，就能得到每个结点的PR值。</p>
+<h2 id="ranking-users-in-social-networks-with-higher-order-structures">Ranking Users in Social Networks with Higher-Order Structures</h2>
+<p>这里介绍一种改进的方法，这是在社交网络上的应用，在计算PR的时候，其实我们默认了，在一个网站上以相同概率跳转到其他的结点，但这其实在社交网络里面是有问题的。看下面的例子。</p>
+<p>用户1同时关注了2,3,4在三个用户，但是，很显然，用户1其实是更信任用户2多过用户4的，因为用户1同时关注了2跟3.</p>
+<figure>
+<img src="1519050454857.png" alt="1519050454857"><figcaption>1519050454857</figcaption>
+</figure>
+<p>所以我们要做的就是，考虑这种三角结构：</p>
+<figure>
+<img src="1519052828959.png" alt="1519052828959"><figcaption>1519052828959</figcaption>
+</figure>
+<p>一共有7种。举个例子，当我们考虑M6时。</p>
+<figure>
+<img src="1519052801833.png" alt="1519052801833"><figcaption>1519052801833</figcaption>
+</figure>
+<p>对于结点3而言，M6结构一共出现了2次，分别是153,123.所以矩阵第1行第3列等于2.</p>
+<p>上面的这个考虑了三角结构的邻接矩阵可以用下面的公式计算。其中<span class="math inline">\(B=W\odot W^T\)</span>,<span class="math inline">\(U=W-B\)</span>,其中<span class="math inline">\(\odot\)</span>是对应元素相乘</p>
+<figure>
+<img src="1519053031829.png" alt="1519053031829"><figcaption>1519053031829</figcaption>
+</figure>
+<p>最后对于PR的计算公式： <span class="math display">\[
+\mathbf{R} = d P\mathbf{R} + \frac{1-d}{N} \mathbf{1}
+\]</span> 我们用 <span class="math display">\[
+H_{M_k}=\alpha W+(1-\alpha)W_{M_k}
+\]</span> 来替换掉P就能取得很好的效果。</p>
+<h2 id="扩展资料">扩展资料</h2>
+<p>其实PR只是目前页面排序的一个小小的权重，这是目前谷歌最新的<a href="https://en.wikipedia.org/wiki/Google_Penguin" target="_blank" rel="noopener">企鹅算法</a></p>
+<h2 id="参考资料">参考资料</h2>
+<p><a href="http://www.cse.ust.hk/~hzhaoaf/data/aaai2018-paper.pdf" target="_blank" rel="noopener">Zhao, Huan, et al. “Ranking Users in Social Networks with Higher-Order Structures.” (AAAI 2018)</a></p>
+<p><a href="https://en.wikipedia.org/wiki/PageRank" target="_blank" rel="noopener">PageRank-wiki</a></p>
+
       
     </div>
     
@@ -346,21 +420,9 @@
     
 <div class="share">
     
-        <div class="bdsharebuttonbox">
-            <a href="#" class="fa fa-twitter bds_twi" data-cmd="twi" title="分享到推特"></a>
-            <a href="#" class="fa fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
-            <a href="#" class="fa fa-qq bds_sqq" data-cmd="sqq" title="分享给 QQ 好友"></a>
-            <a href="#" class="fa fa-files-o bds_copy" data-cmd="copy" title="复制网址"></a>
-            <a href="#" class="fa fa fa-envelope-o bds_mail" data-cmd="mail" title="通过邮件分享"></a>
-            <a href="#" class="fa fa-weixin bds_weixin" data-cmd="weixin" title="生成文章二维码"></a>
-            <a href="#" class="fa fa-share-alt bds_more" data-cmd="more"></i></a>
-        </div>
-        <script>
-            window._bd_share_config={
-                "common":{"bdSnsKey":{},"bdText":"Introduction of PageRank and Application in Social Network with Higher-Order Structures　| qjgods　","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];
-        </script>
-    
 
+    
+        <div class="addthis_sharing_toolbox"></div>
     
 </div>
 
