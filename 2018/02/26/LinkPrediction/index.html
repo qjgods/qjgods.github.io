@@ -274,10 +274,9 @@
 <li><p>etc</p></li>
 </ul>
 <p><strong>Power law degree distribution</strong>: 大部分人都只有很少的链接，但是有一小部分人，他们的链接的数量远远多于其他人。</p>
-<div class="figure">
-<img src="Power-law-degree-distribution-trend.png" alt="power law degree distribution">
-<p class="caption">power law degree distribution</p>
-</div>
+<figure>
+<img src="Power-law-degree-distribution-trend.png" alt="power law degree distribution"><figcaption>power law degree distribution</figcaption>
+</figure>
 <p><strong>Small-World Phenomenon</strong>: 或者叫六度空间，你和任何一个陌生人之间所间隔的人不会超过六个</p>
 <p><strong>community structure (clustering effect)</strong>: 社交网络里面会有很多个小群体，他们都相互认识彼此。</p>
 <p>那么到底要怎么去做link predction呢，目前传统的方法，有Path-based Methods,Neighbor-based Methods等等。下面是他们的介绍。</p>
@@ -294,7 +293,7 @@ Score(x,y)=\sum_{l=1}^{\infty}\beta^l|path_{x,y}^l|
 Score(x,y)=-H_{x,y}
 \]</span> 其中<span class="math inline">\(H_{x,y}\)</span>为总跳转次数/到达y的次数，我们取负H来表示评分,H越小表示越近则越好。</p>
 <h3 id="rooted-pagerank">Rooted PageRank</h3>
-<p>然而，如果y是一个非常有影响力的人，那么很多人都能在非常少的跳转次数下到达y，为了减轻这效应，我们增加一个随机&quot;reset&quot;的机制以及不停。当到达y时，以概率跳回x，以<span class="math inline">\(1-\alpha\)</span>继续随机游走。并记录下经过y的次数。 <span class="math display">\[
+<p>然而，如果y是一个非常有影响力的人，那么很多人都能在非常少的跳转次数下到达y，为了减轻这效应，我们增加一个随机“reset”的机制以及不停。当到达y时，以概率跳回x，以<span class="math inline">\(1-\alpha\)</span>继续随机游走。并记录下经过y的次数。 <span class="math display">\[
 Score(x,y)=-H_{x,y}\pi_y
 \]</span> 其中<span class="math inline">\(\pi_y\)</span>表示那么多次跳转经过y概率。</p>
 <h2 id="neighbor-based-methods">Neighbor-based Methods</h2>
@@ -312,10 +311,9 @@ Score(x,y)=\sum_{Z\in \mathcal{T}(x)\cap\mathcal{T}(y)}\frac{1}{\log |\mathcal{T
 \]</span></p>
 <h3 id="friendes-mearsure">Friendes-mearsure</h3>
 <p>既然两个人有相同的好友可以表达他们间的距离，那么我们可以把这一个思想推广，我们认为，他们的好友之间很有可能互为好友。我们就计算他们好友之间互为好友的数量作为评价标准。</p>
-<div class="figure">
-<img src="friends-measure.png" alt="friends-measure">
-<p class="caption">friends-measure</p>
-</div>
+<figure>
+<img src="friends-measure.png" alt="friends-measure"><figcaption>friends-measure</figcaption>
+</figure>
 <h3 id="preferential-attachment">Preferential Attachment</h3>
 <p>另外，如果两个用户拥有的好友数量越多，那么就越有可能更愿意去建立联系。也就是“富人越富”原则，基于这思想,用他们两个用户的好友数量的乘积作为评分。 <span class="math display">\[
 Score(x,y)=|\mathcal{T}(x)||\mathcal{T}(y)|
@@ -325,26 +323,14 @@ Score(x,y)=|\mathcal{T}(x)||\mathcal{T}(y)|
 <p>这里考虑一种低秩表达,S和T，使得未来会建立联系的用户i和用户j有, <span class="math display">\[
 S_iT_j&gt;S_iT_{n}
 \]</span> 其中(i,n)是那些不会建立联系的人。</p>
-<div class="figure">
-<img src="1519297006531.png">
-
-</div>
-<div class="figure">
-<img src="1519300128216.png">
-
-</div>
+<p><img src="1519297006531.png"></p>
+<p><img src="1519300128216.png"></p>
 <p>用一个sigmoid函数来表达下一时刻会active的概率。这里的f使用了log函数，主要考虑了其影响是随着次数指数衰减的。</p>
-<div class="figure">
-<img src="1519300138621.png">
-
-</div>
+<p><img src="1519300138621.png"></p>
 <p>最后给出一个目标函数通过优化得到S和T。</p>
 <h2 id="link-prediction-via-subgraph-embedding-based-convex-matrix-completion">Link Prediction via Subgraph Embedding-Based Convex Matrix Completion</h2>
 <p>还有另外一个方法，它考虑了subgraph.</p>
-<div class="figure">
-<img src="1519312876647.png">
-
-</div>
+<p><img src="1519312876647.png"></p>
 <p>基本思想就是，每个结点，用广度优先搜索就可以得到不同深度的子图，然后利用这些结构信息来embedding,最后通过将不同深度得到的embedding concat在一起，就得到了这个结点的embedding. 最后就用这些embedding的余弦相似度来做link prediction.</p>
 <h2 id="references">References</h2>
 <p><a href="http://be.amazd.com/link-prediction/" target="_blank" rel="noopener">What will Facebook friendships look like tomorrow?</a></p>

@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/eAndMStep.PNG">
-<meta property="og:updated_time" content="2018-03-02T06:31:11.108Z">
+<meta property="og:updated_time" content="2018-03-02T06:50:25.998Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="带你理解EM算法">
 <meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
@@ -277,10 +277,9 @@
 \]</span> 我们知道<span class="math inline">\(KL( q( z_{i}) ||p( z_{i} |x_{i})) \geqslant 0\)</span>，所以这个似然度一定有 <span class="math display">\[
 \log p( x_{i}) \geqslant E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})
 \]</span> 可以看到对数似然度被分解成了两部分，一个是evidence lower bound(ELOB)，似然度的下界，另一个是KL距离，不管q是什么分布，这两部分加起来肯定是一样的。</p>
-<div class="figure">
-<img src="klsplitup.png" alt="ELOB与KL">
-<p class="caption">ELOB与KL</p>
-</div>
+<figure>
+<img src="klsplitup.png" alt="ELOB与KL"><figcaption>ELOB与KL</figcaption>
+</figure>
 <p>图中的L是我们的ELOB。</p>
 <p>也就是说，只要我们令KL距离为0，此时 <span class="math inline">\(q(z) =p(z|x)\)</span> ，那么ELOB就等于似然度的值了。这就意味着我们最大化 <span class="math inline">\(\theta\)</span> 的时候，不再需要对<span class="math inline">\(\log p(x|\theta)\)</span>做，只要找到 <span class="math inline">\(\theta\)</span> 使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里<span class="math inline">\(H(q)\)</span> 是q的熵，与 <span class="math inline">\(\theta\)</span> 无关只与分布q有关，所以不用管。于是我们把 <span class="math inline">\(q(z) =p(z|x)\)</span> 代入到ELOB中得到 <span class="math display">\[
 \begin{aligned}
@@ -290,14 +289,13 @@ ELOB_{i} &amp; =E_{z_{i}}(\log p( x_{i} ,z_{i})) +const\\
  &amp; =\sum _{z_{i}} p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) +const( 如果z是离散的)
 \end{aligned}
 \]</span></p>
-<div class="figure">
-<img src="eAndMStep.PNG" alt="EM算法示意图">
-<p class="caption">EM算法示意图</p>
-</div>
+<figure>
+<img src="eAndMStep.PNG" alt="EM算法示意图"><figcaption>EM算法示意图</figcaption>
+</figure>
 <p>EM算法，示意图，E步，把KL设为0，蓝色的线往上移，使得ELOB=似然度，M步，最大化ELOB，使得似然度增大，红色的线往上移，然后我们不断重复直到收敛。</p>
 <p>考虑所有样本，正式的EM框架：</p>
 <p>E步：把<span class="math inline">\(q_{i}( z_{i}) =p( z_{i} |x_{i})\)</span>代入到下界中，再把常数项剔除， <span class="math display">\[
-Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i} |\theta ) |x_{i} ,\theta ^{t-1}\right]
+Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{i},\theta^{t-1})\log p( x_{i} ,z_{i},\theta)=\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i} |\theta ) |x_{i} ,\theta ^{t-1}\right]
 \]</span> M步：最大化下界ELOB <span class="math display">\[
 \theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right)
 \]</span></p>
@@ -315,7 +313,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i
         <p><span>本文标题:</span><a href="">带你理解EM算法</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-03-01, 09:52:19</p>
-        <p><span>最后更新:</span>2018-03-02, 14:31:11</p>
+        <p><span>最后更新:</span>2018-03-02, 14:50:25</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="带你理解EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/01/EM/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
