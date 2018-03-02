@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/eAndMStep.PNG">
-<meta property="og:updated_time" content="2018-03-02T03:41:21.012Z">
+<meta property="og:updated_time" content="2018-03-02T06:27:36.872Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="EM算法">
 <meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
@@ -282,7 +282,7 @@
 <p class="caption">ELOB与KL</p>
 </div>
 <p>图中的L是我们的ELOB。</p>
-<p>也就是说，只要我们令KL距离为0，此时<span class="math inline">\(q( z) =p( z|x)\)</span>，那么ELOB就等于似然度的值了。这就意味着我们最大化$<span class="math inline">\(的时候，不再需要对\)</span>p( x|)<span class="math inline">\(做，只需要找到\)</span><span class="math inline">\(使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里\)</span>H( q)<span class="math inline">\(是q的熵，与\)</span><span class="math inline">\(无关只与分布q有关，所以不用管。于是我们把\)</span>q( z) =p( z|x)$代入到ELOB中得到 <span class="math display">\[
+<p>也就是说，只要我们令KL距离为0，此时 <span class="math inline">\(q(z) =p(z|x)\)</span> ，那么ELOB就等于似然度的值了。这就意味着我们最大化 <span class="math inline">\(\theta\)</span> 的时候，不再需要对<span class="math inline">\(\log p(x|\theta)\)</span>做，只要找到 <span class="math inline">\(\theta\)</span> 使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里<span class="math inline">\(H(q)\)</span> 是q的熵，与 <span class="math inline">\(\theta\)</span> 无关只与分布q有关，所以不用管。于是我们把 <span class="math inline">\(q(z) =p(z|x)\)</span> 代入到ELOB中得到 <span class="math display">\[
 \begin{aligned}
 ELOB_{i} &amp; =E_{z_{i}}(\log p( x_{i} ,z_{i})) +const\\
  &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz+const\\
@@ -315,7 +315,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i
         <p><span>本文标题:</span><a href="">EM算法</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-03-01, 09:52:19</p>
-        <p><span>最后更新:</span>2018-03-02, 11:41:21</p>
+        <p><span>最后更新:</span>2018-03-02, 14:27:36</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/01/EM/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
