@@ -15,13 +15,18 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="qjgods">
-<meta property="og:url" content="http://qjgods.github.io/tags/机器学习/index.html">
+<meta name="description" content="如果我们要用q去近似p，$KL(q||p)$跟$KL(p||q)$的区别在哪里?我们发现KL(p||q)会高估p的值域尽可能保持大于0，而KL(q||p)会低估p的值域，被p的0点截断。">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="正向跟反向KL距离到底有什么区别？">
+<meta property="og:url" content="http://qjgods.github.io/2018/03/06/KL-divergence/index.html">
 <meta property="og:site_name" content="qjgods">
+<meta property="og:description" content="如果我们要用q去近似p，$KL(q||p)$跟$KL(p||q)$的区别在哪里?我们发现KL(p||q)会高估p的值域尽可能保持大于0，而KL(q||p)会低估p的值域，被p的0点截断。">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-09T08:53:47.768Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="qjgods">
+<meta name="twitter:title" content="正向跟反向KL距离到底有什么区别？">
+<meta name="twitter:description" content="如果我们要用q去近似p，$KL(q||p)$跟$KL(p||q)$的区别在哪里?我们发现KL(p||q)会高估p的值域尽可能保持大于0，而KL(q||p)会低估p的值域，被p的0点截断。">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -44,14 +49,14 @@
     <link href="//cdn.bootcss.com/pace/1.0.2/themes/blue/pace-theme-minimal.css" rel="stylesheet">
 
 
-<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="../../../../css/style.css">
 
 
 
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>Tag: 机器学习 | qjgods</title>
+<title>正向跟反向KL距离到底有什么区别？ | qjgods</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -61,9 +66,9 @@
         fancybox: true,
         animate: true,
         isHome: false,
-        isPost: false,
+        isPost: true,
         isArchive: false,
-        isTag: true,
+        isTag: false,
         isCategory: false,
         fancybox_js: "//cdn.bootcss.com/fancybox/2.1.5/jquery.fancybox.min.js",
         scrollreveal: "//cdn.bootcss.com/scrollReveal.js/3.1.4/scrollreveal.min.js",
@@ -129,11 +134,11 @@
                     <nav class="header-menu">
                         <ul>
                         
-                            <li><a href="../../archives/">所有文章</a></li>
+                            <li><a href="../../../../archives/">所有文章</a></li>
                         
-                            <li><a href="../../tags/">标签云</a></li>
+                            <li><a href="../../../../tags/">标签云</a></li>
                         
-                            <li><a href="../../about/">关于我</a></li>
+                            <li><a href="../../../../about/">关于我</a></li>
                         
                         </ul>
                     </nav>
@@ -198,11 +203,11 @@
             <nav class="header-menu">
                 <ul>
                 
-                    <li><a href="../../archives/">所有文章</a></li>
+                    <li><a href="../../../../archives/">所有文章</a></li>
                 
-                    <li><a href="../../tags/">标签云</a></li>
+                    <li><a href="../../../../tags/">标签云</a></li>
                 
-                    <li><a href="../../about/">关于我</a></li>
+                    <li><a href="../../../../about/">关于我</a></li>
                 
                 <div class="clearfix"></div>
                 </ul>
@@ -224,122 +229,160 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap">
+      <div class="body-wrap"><article id="post-KL-divergence" class="article article-type-post" itemscope itemprop="blogPost">
   
+    <div class="article-meta">
+      <a href="" class="article-date">
+      <time datetime="2018-03-06T07:14:01.000Z" itemprop="datePublished">2018-03-06</time>
+</a>
+
+
+    </div>
   
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy" />
     
     
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      正向跟反向KL距离到底有什么区别？
+    </h1>
+  
+
+      </header>
       
+      <div class="article-info article-info-post">
+        
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../../tags/机器学习/">机器学习</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
       
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="../../archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
     
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="../../2018/03/06/KL-divergence/" class="archive-article-date">
-      <time datetime="2018-03-06T07:14:01.000Z" itemprop="datePublished">03-06</time>
-</a>
-
-
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="../../2018/03/06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a>
-    </h1>
-  
-
-        <div class="article-info info-on-archive">
+    <div class="article-entry" itemprop="articleBody">
+      
           
+        <p>如果我们要用一个分布q去近似一个分布p，我们一般的做法都是去优化一个KL距离使得他最小，但是KL距离是一个不对称的距离，那么我们优化<span class="math inline">\(KL(q||p)\)</span>跟<span class="math inline">\(KL(p||q)\)</span>的区别在哪里?</p>
+<p>首先考虑第一种KL距离<span class="math inline">\(KL(p||q)\)</span>，也被称为M-projection 或 moment projection，定义如下： <span class="math display">\[
+KL(p||q)=\sum_xp(x)\ln\frac{p(x)}{q(x)}
+\]</span> 在这个距离里面，我们发现只有当<span class="math inline">\(p(x)=0\)</span>的时候，<span class="math inline">\(q(x)\)</span>才能等于0，否则他们之间的距离就会无穷大，于是为了近似p，q会尽可能保持大于0，因为他能够等于0的地方太少了。于是在这种情况下q就会高估p的值域。</p>
+<p>对于另外一个距离<span class="math inline">\(KL(q||p)\)</span>,又称为I-projection 或 information projection. <span class="math display">\[
+KL(q||p)=\sum_xq(x)\ln\frac{q(x)}{p(x)}
+\]</span> 在这个距离里面，我们发现当<span class="math inline">\(p(x)=0\)</span>的时候 ，我们必须要保证<span class="math inline">\(q(x)=0\)</span>，否则这个距离就会变成无穷大，那我们的q就无法近似p了。所以，q很可能为了近似p，而避开或被p(x)=0的点截断。这种特性会导致q会低估p的值域。</p>
+<p><embed src="640.webp"></p>
+<p>图也正好表达了这种关系，<span class="math inline">\(KL(p||q)\)</span>会高估p的值域尽可能保持大于0，而<span class="math inline">\(KL(q||p)\)</span>会低估p的值域，被p的0点截断。</p>
 
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="">机器学习</a></li></ul>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="">正向跟反向KL距离到底有什么区别？</a></p>
+        <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
+        <p><span>发布时间:</span>2018-03-06, 15:14:01</p>
+        <p><span>最后更新:</span>2018-03-09, 16:53:47</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="" title="正向跟反向KL距离到底有什么区别？">http://qjgods.github.io/2018/03/06/KL-divergence/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/06/KL-divergence/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <script> var clipboard = new Clipboard('.copy-path'); </script>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+        </p>
     </div>
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
+
+
+    <nav id="article-nav">
+        
+        
+            <div id="article-nav-older" class="article-nav-title">
+                <a href="../../01/EM/">
+                    带你理解EM算法
+                </a>
+            </div>
+        
+    </nav>
+
+  
 </article>
-  
+
+    <div id="toc" class="toc-article">
+        <strong class="toc-title">文章目录</strong>
+        
+            
+        
+    </div>
+    <style>
+        .left-col .switch-btn,
+        .left-col .switch-area {
+            display: none;
+        }
+        .toc-level-3 i,
+        .toc-level-3 ol {
+            display: none !important;
+        }
+    </style>
+
+    <input type="button" id="tocButton" value="隐藏目录"  title="点击按钮隐藏或者显示文章目录">
+
+    <script>
+        yiliaConfig.toc = ["隐藏目录", "显示目录", !!"false"];
+    </script>
+
+
+
     
+<div class="share">
     
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="../../2018/03/01/EM/" class="archive-article-date">
-      <time datetime="2018-03-01T01:52:19.000Z" itemprop="datePublished">03-01</time>
-</a>
+
+    
+        <div class="addthis_sharing_toolbox"></div>
+    
+</div>
 
 
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="../../2018/03/01/EM/">带你理解EM算法</a>
-    </h1>
-  
 
-        <div class="article-info info-on-archive">
-          
 
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="">机器学习</a></li></ul>
+
+
+
+    
+
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+
+        
+            <a href="../../01/EM/" title="下一篇: 带你理解EM算法">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
     </div>
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-          <div class="article-meta">
-              <a href="../../2018/02/18/Computational Learning Theory and Model Selection/" class="archive-article-date">
-      <time datetime="2018-02-18T08:50:26.143Z" itemprop="datePublished">02-18</time>
-</a>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
-        </div>
-         
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="../../2018/02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a>
-    </h1>
-  
 
-        <div class="article-info info-on-archive">
-          
 
-          
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="">机器学习</a></li></ul>
-    </div>
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-
+    <script>
+        
+    </script>
 </div>
       <footer id="footer">
     <div class="outer">

@@ -15,20 +15,20 @@
 
 
 
-<meta name="description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
+<meta name="description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
 <meta name="keywords" content="机器学习">
 <meta property="og:type" content="article">
 <meta property="og:title" content="带你理解EM算法">
 <meta property="og:url" content="http://qjgods.github.io/2018/03/01/EM/index.html">
 <meta property="og:site_name" content="qjgods">
-<meta property="og:description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
+<meta property="og:description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/eAndMStep.PNG">
-<meta property="og:updated_time" content="2018-03-02T06:50:25.998Z">
+<meta property="og:updated_time" content="2018-03-06T07:15:43.042Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="带你理解EM算法">
-<meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数$	heta $的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
+<meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
 <meta name="twitter:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
@@ -325,7 +325,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
         <p><span>本文标题:</span><a href="">带你理解EM算法</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-03-01, 09:52:19</p>
-        <p><span>最后更新:</span>2018-03-02, 14:50:25</p>
+        <p><span>最后更新:</span>2018-03-06, 15:15:43</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="带你理解EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/01/EM/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -339,6 +339,12 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
 
 
     <nav id="article-nav">
+        
+            <div id="article-nav-newer" class="article-nav-title">
+                <a href="../../06/KL-divergence/">
+                    正向跟反向KL距离到底有什么区别？
+                </a>
+            </div>
         
         
             <div id="article-nav-older" class="article-nav-title">
@@ -399,7 +405,9 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+            <a href="../../06/KL-divergence/" title="上一篇: 正向跟反向KL距离到底有什么区别？">
+                <i class="fa fa-angle-left"></i>
+            </a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
@@ -411,7 +419,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">Introduction of PageRank and Application in Social Network with Higher-Order Structures</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
