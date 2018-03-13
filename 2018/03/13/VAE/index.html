@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/klsplitup.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/reparameterization.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/vae.jpg">
-<meta property="og:updated_time" content="2018-03-13T09:36:13.624Z">
+<meta property="og:updated_time" content="2018-03-13T09:39:05.108Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="变分自编码机(VAE)">
 <meta name="twitter:description" content="本文从EM算法开始，到变分推断，再到变分自编码来介绍VAE的理论与推导">
@@ -308,7 +308,7 @@ q_{j}( z_{j}) =E_{i\neq j}[\log p( x,z)]
 <span class="math display">\[\mathcal{L}( \theta ;x) =E_{z\sim q( z)}(\log p_{\theta }( x ,z)) -H( q)\]</span> Fully Monte Carlo(FMC) form: <span class="math display">\[\mathcal{L}( \theta ;x) =E_{z\sim q( z)}[\log p_{\theta }( x,z) -\log q( z)]\]</span></p>
 <p>其中q是一个任意的分布，那么现在，我们令<span class="math inline">\(q( z) \triangleq q_{\phi }( z|x)\)</span>，用KL形式的下界可以得到： <span class="math display">\[
 \mathcal{L}( \theta ,\phi ;x) =E_{z\sim q_{\phi }( z|x)}(\log p_{\theta }( x|z)) -KL( q_{\phi }( z|x) ||p_{\theta }( z))
-\]</span> 现在引入了一个带参数的<span class="math inline">\(q_{\phi }\)</span>来表示这个上界，如果要最大化这个上界，我们只要用梯度上升不断更新参数$$就可以了。一般情况下，KL距离的那一项是有解析解的，所以梯度很好求。然而对第一项求梯度则没那么简单，一个常用的方法是</p>
+\]</span> 现在引入了一个带参数的<span class="math inline">\(q_{\phi }\)</span>来表示这个上界，如果要最大化这个上界，我们只要用梯度上升不断更新参数<span class="math inline">\(\phi\)</span>就可以了。一般情况下，KL距离的那一项是有解析解的，所以梯度很好求。然而对第一项求梯度则没那么简单，一个常用的方法是</p>
 <p><span class="math display">\[ \nabla _{\phi } E_{z\sim q_{\phi }( z)}( f( z)) =E_{z\sim q_{\phi }( z)}[ f( z) \nabla _{\phi }\log q_{\phi }( z)] \simeq \frac{1}{L}\sum ^{L}_{l=1} f\left( z^{l}\right) \nabla _{\phi }\log q_{\phi }\left( z^{l}\right) \]</span></p>
 <p>但是这么做的方差太高，又因为<span class="math inline">\(q_{\phi }( z|x)​\)</span>出现在了期望的采样分布中，没办法求梯度。</p>
 <figure>
@@ -357,7 +357,7 @@ z=q_{\phi }( z|x) =g_{\phi }( \epsilon ,x) =\mu _{\phi }( x) +\Sigma _{\phi }^{1
         <p><span>本文标题:</span><a href="">变分自编码机(VAE)</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-03-13, 17:22:57</p>
-        <p><span>最后更新:</span>2018-03-13, 17:36:13</p>
+        <p><span>最后更新:</span>2018-03-13, 17:39:05</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="变分自编码机(VAE)">http://qjgods.github.io/2018/03/13/VAE/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/13/VAE/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
