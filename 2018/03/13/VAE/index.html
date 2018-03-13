@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/klsplitup.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/reparameterization.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/vae.jpg">
-<meta property="og:updated_time" content="2018-03-13T11:25:25.783Z">
+<meta property="og:updated_time" content="2018-03-13T11:28:28.707Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="变分自编码机(VAE)">
 <meta name="twitter:description" content="本文从EM算法开始，到变分推断，再到变分自编码来介绍VAE的理论与推导">
@@ -315,7 +315,7 @@ q_{j}( z_{j}) =E_{i\neq j}[\log p( x,z)]
 </figure>
 <p>如上图，我们可以用reparameterize trick来解决这个问题，这时z对于x来说就是一个固定的值，只要我们从<span class="math inline">\(\epsilon\)</span>中抽样后，固定住就可以了，设 <span class="math display">\[
 z=g_{\phi }( \epsilon ,x) ,\epsilon \sim p( \epsilon )
-\]</span> 其中$$是一个已知的简单分布，比如说标准正态分布，次数z的产生就变成了从某个固定的标准分布中采样，于是下界中的期望那一项可以改写成： <span class="math display">\[
+\]</span> 其中<span class="math inline">\(\epsilon\)</span>是一个已知的简单分布，比如说标准正态分布，次数z的产生就变成了从某个固定的标准分布中采样，于是下界中的期望那一项可以改写成： <span class="math display">\[
 E_{z\sim q_{\phi }( z|x)}(\log p_{\theta }( x|z)) =E_{\epsilon \sim p( \epsilon )}(\log p_{\theta }( x|g_{\phi }( \epsilon ,x))) \simeq \frac{1}{L}\sum ^{L}_{l=1}\log p_{\theta }( x|g_{\phi }( \epsilon ,x))
 \]</span> 于是对于一个样本<span class="math inline">\(x^{( i)}\)</span>的下界可以写作： <span class="math display">\[
 \mathcal{L}\left( \theta ,\phi ;x^{( i)}\right) =\frac{1}{L}\sum ^{L}_{l=1}\log p_{\theta }\left( x^{( i)} |z^{( i,l)}\right) -KL\left( q_{\phi }\left( z^{( i)} |x^{( i)}\right) ||p_{\theta }\left( z^{( i)}\right)\right)
@@ -356,7 +356,7 @@ z=q_{\phi }( z|x) =g_{\phi }( \epsilon ,x) =\mu _{\phi }( x) +\Sigma _{\phi }^{1
         <p><span>本文标题:</span><a href="">变分自编码机(VAE)</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-03-13, 17:22:57</p>
-        <p><span>最后更新:</span>2018-03-13, 19:25:25</p>
+        <p><span>最后更新:</span>2018-03-13, 19:28:28</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="变分自编码机(VAE)">http://qjgods.github.io/2018/03/13/VAE/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/13/VAE/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
