@@ -29,7 +29,7 @@
 <meta property="og:image" content="http://qjgods.github.io/2018/02/26/LinkPrediction/1519300128216.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/26/LinkPrediction/1519300138621.png">
 <meta property="og:image" content="http://qjgods.github.io/2018/02/26/LinkPrediction/1519312876647.png">
-<meta property="og:updated_time" content="2018-03-09T09:21:41.384Z">
+<meta property="og:updated_time" content="2018-03-09T13:09:55.371Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="社交网络中的Link Prediction">
 <meta name="twitter:description" content="给你一段时间内的社交网络关系，我们能否预测出成员之间在未来的互动？ 我们称该问题为Link prediction Problem.常见的应用就是社交网站的好友推荐，在信息生物中预测蛋白质间的相互影响，预测犯罪嫌疑人的关系，商品推荐等等。">
@@ -294,7 +294,7 @@
 <p>那么到底要怎么去做link predction呢，目前传统的方法，有Path-based Methods,Neighbor-based Methods等等。下面是他们的介绍。</p>
 <h2 id="path-based-methods">Path-based Methods</h2>
 <h3 id="graph-distance">Graph Distance</h3>
-<p>一个最直接的预测方法就是计算两个结点间的距离，然后根据距离的大小来预测。但是在上百万的结点下直接用dijkstra算法是非常低效的。相反，我们可以利用small world phenomenon来提高我们的效率。</p>
+<p>一个最直接的预测方法就是计算两个结点间的距离，然后根据距离的大小来预测，两个结点越近那么就越容易在未来建立联系。但是在上百万的结点下直接用dijkstra算法是非常低效的。相反，我们可以利用small world phenomenon来提高我们的效率。</p>
 <p>比如说要计算x，y两点距离，我们先初始化两个集合 <span class="math inline">\(S=\{x\},D=\{y\}\)</span>,然后开始S和D的集合，扩展的方法就是不断地把集合里面元素的邻居放进去，直到S和D相同的元素为止。根据small world phenomenon来说，扩展的次数不会太多。另外效率起见，我们一般选择元素数量较少的那个来扩展。</p>
 <h3 id="katz-exponentially-damped-path-counts">Katz (Exponentially Damped Path Counts)</h3>
 <p>我们还可以考虑用x，y之间存在的路径的数量来衡量它们的距离。然而，路径有长有短，一般认为，那些很长的路径其实是没什么说服力的，于是引入指数衰减机制随着路径长度进行衰减。 <span class="math display">\[
@@ -305,16 +305,16 @@ Score(x,y)=\sum_{l=1}^{\infty}\beta^l|path_{x,y}^l|
 Score(x,y)=-H_{x,y}
 \]</span> 其中<span class="math inline">\(H_{x,y}\)</span>为总跳转次数/到达y的次数，我们取负H来表示评分,H越小表示越近则越好。</p>
 <h3 id="rooted-pagerank">Rooted PageRank</h3>
-<p>然而，如果y是一个非常有影响力的人，那么很多人都能在非常少的跳转次数下到达y，为了减轻这效应，我们增加一个随机“reset”的机制以及不停。当到达y时，以概率跳回x，以<span class="math inline">\(1-\alpha\)</span>继续随机游走。并记录下经过y的次数。 <span class="math display">\[
+<p>然而，如果y是一个非常有影响力的人，那么很多人都能在非常少的跳转次数下到达y，为了减轻这效应，我们增加一个随机“reset”以及继续游走的机制。当到达y时，以概率<span class="math inline">\(\alpha\)</span>跳回x，以<span class="math inline">\(1-\alpha\)</span>继续随机游走。并记录下经过y的次数。 <span class="math display">\[
 Score(x,y)=-H_{x,y}\pi_y
 \]</span> 其中<span class="math inline">\(\pi_y\)</span>表示那么多次跳转经过y概率。</p>
 <h2 id="neighbor-based-methods">Neighbor-based Methods</h2>
 <h3 id="common-neighbors">Common Neighbors</h3>
-<p>当两个用户有着很多个相同的邻居，我们就认为这两个用户很有可能建立联系。所以两个用户的相似性就用 <span class="math display">\[
+<p>当两个用户有着很多个相同的邻居，我们就认为这两个用户很有可能建立联系。所以两个用户的相似性就用他们相同邻居的数量表示： <span class="math display">\[
 Score(x,y)=|\mathcal{T}(x)\cap\mathcal{T}(y)|
 \]</span> 其中<span class="math inline">\(\mathcal{T}(x)\)</span>表示x的邻居。实际上这个方法揭示了一个叫“closing a trangle”的现象</p>
 <h3 id="jaccards-coefficient">Jaccard’s Coefficient</h3>
-<p>然而<strong>Common Neighbors</strong>有一个很大的问题，假设有一个人有非常多的邻居，那么所有人都会被预测成会更他互动了，所以，我们还要把他们邻居的数量考虑进去，于是我们认为，如果两个人共同邻居的数量在他们所有好友数量中占比越大，就认为可能建立联系。即 <span class="math display">\[
+<p>然而<strong>Common Neighbors</strong>有一个很大的问题，假设有一个人有非常多的邻居，那么所有人都会倾向于预测跟他产生互动，为此，我们还要把他们邻居的数量考虑进去，于是我们认为，如果两个人共同邻居的数量在他们所有好友数量中占比越大，就认为可能建立联系。即 <span class="math display">\[
 Score(x,y)=\frac{|\mathcal{T}(x)\cap\mathcal{T}(y)|}{|\mathcal{T}(x)\cup\mathcal{T}(y)|}
 \]</span></p>
 <h3 id="adamicadar-frequency-weighted-common-neighbors">Adamic/Adar (Frequency-Weighted Common Neighbors)</h3>
@@ -360,7 +360,7 @@ S_iT_j&gt;S_iT_{n}
         <p><span>本文标题:</span><a href="">社交网络中的Link Prediction</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
         <p><span>发布时间:</span>2018-02-26, 10:12:24</p>
-        <p><span>最后更新:</span>2018-03-09, 17:21:41</p>
+        <p><span>最后更新:</span>2018-03-09, 21:09:55</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="" title="社交网络中的Link Prediction">http://qjgods.github.io/2018/02/26/LinkPrediction/</a>
             <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/02/26/LinkPrediction/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
@@ -454,7 +454,7 @@ S_iT_j&gt;S_iT_{n}
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../../03/06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../../03/13/VAE/">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 

@@ -15,21 +15,22 @@
 
 
 
-<meta name="description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
+<meta name="description" content="本文从EM算法开始，到变分推断，再到变分自编码来介绍VAE的理论与推导">
 <meta name="keywords" content="机器学习">
 <meta property="og:type" content="article">
-<meta property="og:title" content="带你理解EM算法">
-<meta property="og:url" content="http://qjgods.github.io/2018/03/01/EM/index.html">
+<meta property="og:title" content="变分自编码机(VAE)">
+<meta property="og:url" content="http://qjgods.github.io/2018/03/13/VAE/index.html">
 <meta property="og:site_name" content="qjgods">
-<meta property="og:description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
+<meta property="og:description" content="本文从EM算法开始，到变分推断，再到变分自编码来介绍VAE的理论与推导">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
-<meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/eAndMStep.PNG">
-<meta property="og:updated_time" content="2018-03-06T07:15:43.042Z">
+<meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/klsplitup.png">
+<meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/reparameterization.png">
+<meta property="og:image" content="http://qjgods.github.io/2018/03/13/VAE/vae.jpg">
+<meta property="og:updated_time" content="2018-03-13T09:29:40.914Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="带你理解EM算法">
-<meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
-<meta name="twitter:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
+<meta name="twitter:title" content="变分自编码机(VAE)">
+<meta name="twitter:description" content="本文从EM算法开始，到变分推断，再到变分自编码来介绍VAE的理论与推导">
+<meta name="twitter:image" content="http://qjgods.github.io/2018/03/13/VAE/klsplitup.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -59,7 +60,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>带你理解EM算法 | qjgods</title>
+<title>变分自编码机(VAE) | qjgods</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -232,11 +233,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-EM" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-VAE" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="" class="article-date">
-      <time datetime="2018-03-01T01:52:19.000Z" itemprop="datePublished">2018-03-01</time>
+      <time datetime="2018-03-13T09:22:57.000Z" itemprop="datePublished">2018-03-13</time>
 </a>
 
 
@@ -251,7 +252,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      带你理解EM算法
+      变分自编码机(VAE)
     </h1>
   
 
@@ -272,48 +273,76 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>很多时候，我们都要最大化似然度来求得一个参数$$的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。下面是该似然度的式子，其中z表示不可观测的变量，x表示可观测的变量，由于z是不可观测的，所以，要求似然度，我们必须要对z求和或求积分(连续的时候求积分，离散的时候求和)。</p>
-<p><span class="math display">\[
-\mathcal{L}( \theta ) =\sum ^{N}_{i=1}\log p( x_{i} |\theta ) =\sum ^{N}_{i=1}\log\left[\sum _{z_{i}} p( x_{i} ,z_{i} |\theta )\right]
-\]</span> 可以看到上面的这个式子，如果不存在隐变量的话，那么那个log是直接作用与p的，如果p恰好是指数族分布，那么这个似然度就非常好求，但是有隐变量的时候，log被一个<span class="math inline">\(\sum _{z}\)</span>给截断的，这就使得这个式子变得很难优化。</p>
-<p>这个问题的关键在于，<span class="math inline">\(\log p( x_{i} |\theta )\)</span>很难优化，但是<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>却很好优化,比如说聚类的时候，你提前知道所有样本的类别了，那你计算每个类别的中心距离就太简单了，但是要优化<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>的前提是，你要看得到隐变量的取值才行啊，然而隐变量是看不到的。EM算法通过一个巧妙的构造，让<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>和似然度<span class="math inline">\(p( x_{i} |\theta )\)</span>的下界联系起来，这是我们只要优化下界就能代替优化似然度本身。</p>
-<p>接下来我们看一下对于单个样本<span class="math inline">\(p( x_{i})\)</span>似然度的下界是什么东西。在这里我们引入了<span class="math inline">\(z_{i}\)</span>的分布<span class="math inline">\(q_{i}( z_{i})\)</span></p>
-<p><span class="math display">\[
+        <h1 id="变分自编码机vae">变分自编码机(VAE)</h1>
+<h2 id="从em到变分推断">从EM到变分推断</h2>
+<p>我们假设有一个隐变量z，我们的样本<span class="math inline">\(x^{( i)}\)</span>是从<span class="math inline">\(p_{\theta }( x|z)\)</span>中产生，因为有隐变量的存在，通常<span class="math inline">\(p_{\theta }( x) =\int p_{\theta }( z) p_{\theta }( x|z) dz\)</span>的边缘分布是没法算的。</p>
+<p>所以传统来说，我们会构造出一个下界： <span class="math display">\[
 \begin{aligned}
-\log p( x_{i} |\theta ) &amp; =\log p( x_{i} ,z_{i}) -\log p( z_{i} |x_{i})\\
- &amp; =\log\left(\frac{p( x_{i} ,z_{i})}{q_{i}( z_{i})}\right) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\
- &amp; =\log p( x_{i} ,z_{i}) -\log q_{i}( z_{i}) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\
- &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz-\int q_{i}( z_{i})\log q( z_{i}) dz-\int q_{i}( z_{i})\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right) dz( 两边同时对z求期望)\\
- &amp; =\underbrace{E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})}_{ELOB_{i}} +KL( q_{i}( z_{i}) ||p( z_{i} |x_{i}))
+\log p( x) &amp; =\underbrace{E_{z\sim q( z)}(\log p( x ,z)) -H( q)}_{ELOB} +KL( q( z) ||p( z |x))
 \end{aligned}
-\]</span> 我们知道<span class="math inline">\(KL( q( z_{i}) ||p( z_{i} |x_{i})) \geqslant 0\)</span>，所以这个似然度一定有 <span class="math display">\[
-\log p( x_{i}) \geqslant E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})
-\]</span> 可以看到对数似然度被分解成了两部分，一个是evidence lower bound(ELOB)，似然度的下界，另一个是KL距离，不管q是什么分布，这两部分加起来肯定是一样的。</p>
-<figure>
-<img src="klsplitup.png" alt="ELOB与KL"><figcaption>ELOB与KL</figcaption>
-</figure>
-<p>图中的L是我们的ELOB。</p>
-<p>也就是说，只要我们令KL距离为0，此时 <span class="math inline">\(q(z) =p(z|x)\)</span> ，那么ELOB就等于似然度的值了。这就意味着我们最大化 <span class="math inline">\(\theta\)</span> 的时候，不再需要对<span class="math inline">\(\log p(x|\theta)\)</span>做，只要找到 <span class="math inline">\(\theta\)</span> 使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里<span class="math inline">\(H(q)\)</span> 是q的熵，与 <span class="math inline">\(\theta\)</span> 无关只与分布q有关，所以不用管。于是我们把 <span class="math inline">\(q(z) =p(z|x)\)</span> 代入到ELOB中得到 <span class="math display">\[
+\]</span> <img src="klsplitup.png" alt="ELOB"></p>
+<p>而EM算法，就是通过精心选择这个下界中的q，从而使得下界最大化，也就是计算<span class="math inline">\(q( z) =p( z|x)\)</span>来近似该模型的似然度。进一步可以参考我之前写的文章《<a href="http://blog.csdn.net/a358463121/article/details/79421476" target="_blank" rel="noopener">带你理解EM算法</a>》</p>
+<p>然而如果我们令<span class="math inline">\(q( z) =p( z|x) =\frac{p_{\theta }( x|z) p_{\theta }( z)}{p_{\theta }( x)}\)</span>也是不可计算的呢，比如你的z有很多很多维，那么你在算那个期望的时候就会出现一堆积分，这是非常难算的。</p>
+<p>此时我们可以使用变分推断的方法，那就是，我们不直接令<span class="math inline">\(q( z) =p( z|x)\)</span>了，而是选一个相对简单的分布q去近似<span class="math inline">\(p( z|x)\)</span>。简单的q怎么来？最常用的就是对q作平均场(mean-field)假设，即，我们可以认为： <span class="math display">\[
+q(\mathbf{z}) =\prod _{i} q_{i}( z_{i})
+\]</span> 这个假设的意思是，虽然你的z有很多维，但是他们都是相互独立的，也就是说，你算很多很多积分的时候，每个<span class="math inline">\(z_{i}\)</span>可以分别积分，所以一个联合积分的问题就简化成了仅需一个积分的问题，于是我们在优化ELOB的时候，只需分别优化<span class="math inline">\(q_{i}\)</span>就可以了。将平均场假设代进ELOB中，化简可以得到 <span class="math display">\[
 \begin{aligned}
-ELOB_{i} &amp; =E_{z_{i}}(\log p( x_{i} ,z_{i})) +const\\
- &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz+const\\
- &amp; =\int p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) dz+const\\
- &amp; =\sum _{z_{i}} p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) +const( 如果z是离散的)
+ELOB &amp; =\int _{z_{j}} q_{j}( z_{j})\left[\underset{z_{i\neq j}}{\int \dotsc \int } q( z)\log p( x,z) dz_{i}\right] dz_{j} -\sum _{i}\int _{z_{i}} q_{i}( z_{i})\log q_{i}( z_{i}) dz_{i}\\
+ &amp; =\int _{z_{j}} q_{j}( z_{j}) E_{i\neq j}[\log p( x,z)] dz_{j} -\int _{z_{j}} q_{j}( z_{j})\log q_{j}( z_{j}) dz_{j} -\underbrace{\sum _{i\neq j}\int _{z_{i}} q_{i}( z_{i})\log q_{i}( z_{i}) dz_{i}}_{Const\ for\ j}\\
+ &amp; =\int _{z_{j}} q_{j}( z_{j})\log\frac{E_{i\neq j}[\log p( x,z)]}{q_{j}( z_{j})} dz_{j} -\underbrace{\sum ^{M}_{i\neq j}\int _{z_{i}} q_{i}( z_{i})\log q_{i}( z_{i}) dz_{i}}_{Const\ for\ j}\\
+ &amp; =-KL( E_{i\neq j}[\log p( x,z) ||q_{j}( z_{j})]) +const
 \end{aligned}
 \]</span></p>
+<p>因为每个<span class="math inline">\(z_{j}\)</span>都是相互独立，于是，只需分别最大化每个<span class="math inline">\(z_{j}\)</span>的ELOB就可以实现ELOB最大化，而其他的项都视作了常数，此时，ELOB就简单地变成了一个负的KL距离，所以，想要最大化这个ELOB，我们只需要令 <span class="math display">\[
+q_{j}( z_{j}) =E_{i\neq j}[\log p( x,z)]
+\]</span> 就可以了。这实际上是一个迭代的问题，因为在constant中，包含了其他的项的q，所以，我们只需不断地更新各个元素q的分布直到收敛就可以了。</p>
+<h2 id="从变分推断到vae">从变分推断到VAE</h2>
+<p>但是，如果即使用了平均场假设也没法算，而使用MCMC又太慢怎么办？为了解决这个问题，我们回到最初的那个下界的表达式中</p>
+<p><span class="math display">\[
+\begin{aligned}
+\log p( x |\theta ) &amp; =\underbrace{E_{z\sim q( z)}(\log p( x ,z)) -H( q)}_{ELOB} +KL( q( z) ||p( z |x))
+\end{aligned}
+\]</span> 实际上ELOB有几种不同的，但是等价的表达方式：</p>
+<p>KL form :<br>
+<span class="math display">\[\mathcal{L}( \theta ;x) =E_{z\sim q( z)}(\log p_{\theta }( x|z)) -KL( q( z) ||p_{\theta }( z))\]</span> Entropy form:<br>
+<span class="math display">\[\mathcal{L}( \theta ;x) =E_{z\sim q( z)}(\log p_{\theta }( x ,z)) -H( q)\]</span> Fully Monte Carlo(FMC) form: <span class="math display">\[\mathcal{L}( \theta ;x) =E_{z\sim q( z)}[\log p_{\theta }( x,z) -\log q( z)]\]</span></p>
+<p>其中q是一个任意的分布，那么现在，我们令<span class="math inline">\(q( z) \triangleq q_{\phi }( z|x)\)</span>，用KL形式的下界可以得到： <span class="math display">\[
+\mathcal{L}( \theta ,\phi ;x) =E_{z\sim q_{\phi }( z|x)}(\log p_{\theta }( x|z)) -KL( q_{\phi }( z|x) ||p_{\theta }( z))
+\]</span> 现在引入了一个带参数的<span class="math inline">\(q_{\phi }\)</span>来表示这个上界，如果要最大化这个上界，我们只要用梯度上升不断更新参数$$就可以了。一般情况下，KL距离的那一项是有解析解的，所以梯度很好求。然而对第一项求梯度则没那么简单，一个常用的方法是</p>
+<p><span class="math display">\[ \nabla _{\phi } E_{z\sim q_{\phi }( z)}( f( z)) =E_{z\sim q_{\phi }( z)}[ f( z) \nabla _{\phi }\log q_{\phi }( z)] \simeq \frac{1}{L}\sum ^{L}_{l=1} f\left( z^{l}\right) \nabla _{\phi }\log q_{\phi }\left( z^{l}\right) \]</span></p>
+<p>但是这么做的方差太高，又因为<span class="math inline">\(q_{\phi }( z|x)​\)</span>出现在了期望的采样分布中，没办法求梯度。</p>
 <figure>
-<img src="eAndMStep.PNG" alt="EM算法示意图"><figcaption>EM算法示意图</figcaption>
+<img src="reparameterization.png" alt="reparameterization"><figcaption>reparameterization</figcaption>
 </figure>
-<p>EM算法，示意图，E步，把KL设为0，蓝色的线往上移，使得ELOB=似然度，M步，最大化ELOB，使得似然度增大，红色的线往上移，然后我们不断重复直到收敛。</p>
-<p>考虑所有样本，正式的EM框架：</p>
-<p>E步：把<span class="math inline">\(q_{i}( z_{i}) =p( z_{i} |x_{i})\)</span>代入到下界中，再把常数项剔除， <span class="math display">\[
-Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{i},\theta^{t-1})\log p( x_{i} ,z_{i},\theta)=\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i} |\theta ) |x_{i} ,\theta ^{t-1}\right]
-\]</span> M步：最大化下界ELOB <span class="math display">\[
-\theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right)
+<p>如上图，因为z是随机结点，所以，bp没法更新，我们可以用reparameterize trick来解决这个问题，这时z对于x来说就是一个固定的值，只要我们从<span class="math inline">\(\epsilon\)</span>中抽样后，固定住就可以了，设 <span class="math display">\[
+z=g_{\phi }( \epsilon ,x) ,\epsilon \sim p( \epsilon )
+\]</span> 其中$$是一个已知的简单分布，比如说标准正态分布，次数z的产生就变成了从某个固定的标准分布中采样，于是下界中的期望那一项可以改写成： <span class="math display">\[
+E_{z\sim q_{\phi }( z|x)}(\log p_{\theta }( x|z)) =E_{\epsilon \sim p( \epsilon )}(\log p_{\theta }( x|g_{\phi }( \epsilon ,x))) \simeq \frac{1}{L}\sum ^{L}_{l=1}\log p_{\theta }( x|g_{\phi }( \epsilon ,x))
+\]</span> 于是对于一个样本<span class="math inline">\(x^{( i)}\)</span>的下界可以写作： <span class="math display">\[
+\mathcal{L}\left( \theta ,\phi ;x^{( i)}\right) =\frac{1}{L}\sum ^{L}_{l=1}\log p_{\theta }\left( x^{( i)} |z^{( i,l)}\right) -KL\left( q_{\phi }\left( z^{( i)} |x^{( i)}\right) ||p_{\theta }\left( z^{( i)}\right)\right)
+\]</span> 其中<span class="math inline">\(z^{( i,l)} =g_{\phi }\left( \epsilon ^{( i,l)} ,x^{( i)}\right) ,\epsilon ^{( l)} \sim p( \epsilon )\)</span> 在这里，如果我们用一个MLP来表示<span class="math inline">\(p_{\theta}\)</span>和<span class="math inline">\(q_{\phi}\)</span>和就可以对用这个目标函数求梯度来最大化了，注意产生z的分布<span class="math inline">\(q_{\phi }\)</span>其实是由一个标准正态分布的<span class="math inline">\(\epsilon\)</span>和一个用MLP表示的映射函数<span class="math inline">\(g_{\phi}\)</span>构成的，所以训练过程实际上是更新<span class="math inline">\(p_{\theta}\)</span>和<span class="math inline">\(g_{\phi}\)</span>这两个MLP的参数，我们称<span class="math inline">\(p_\theta\)</span>为encoder network,<span class="math inline">\(q_{\phi}\)</span>为decoder network。而z的产生则是从<span class="math inline">\(p( \epsilon )\)</span>抽一个样本，然后经过一个确定性<span class="math inline">\(g_{\phi }\)</span>来产生。</p>
+<p>更直观一点，如果我们假设先验分布<span class="math inline">\(p( z)\)</span>,<span class="math inline">\(p( \epsilon )\)</span>服从标准正态分布， <span class="math display">\[
+z=q_{\phi }( z|x) =g_{\phi }( \epsilon ,x) =\mu _{\phi }( x) +\Sigma _{\phi }^{1/2}( x) \epsilon 
+\]</span> 也就是说，<span class="math inline">\(q_{\phi }( z|x) \sim N\left( \mu _{\phi }( x) ,\Sigma _{\phi }^{1/2}( x)\right)\)</span>也是正态分布，不过其参数由x决定。于是对于两个正态分布的KL距离，对于有J个维度的z，我们完全可以算出其解析解： <span class="math display">\[
+\begin{aligned}
+-KL( q_{\phi }(\mathbf{z} |\mathbf{x}) ||p_{\theta }(\mathbf{z})) &amp; =-KL( N(\mathbf{\mu }_{\phi } ,\mathbf{\sigma }_{\phi }) ||N(\mathbf{0} ,\mathbf{I}))\\
+ &amp; =\frac{1}{2}\sum ^{J}_{j=1}\left(\left( 1+\log \sigma ^{2}_{j}\right) -\mu ^{2}_{j} -\sigma ^{2}_{j}\right)
+\end{aligned}
 \]</span></p>
-<p>M步2：我们还可以做MAP估计，只需要在Q加上参数的对数先验就可以轻松完成，E步没有任何变化 <span class="math display">\[
-\theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right) +\log p( \theta )
-\]</span> 在MAP估计的时候，不仅需要考虑下界的最大化，还需要考虑先验对参数的影响。</p>
+<p>接下来我们看看这个网络的架构</p>
+<figure>
+<img src="vae.jpg" alt="vae"><figcaption>vae</figcaption>
+</figure>
+<p>encoder network将一只喵星人映射成一个均值和一个方差，然后产生一个z样本，通过decoder network再变成一只喵~</p>
+<p>然而VAE对比GAN确实存在一些问题。</p>
+<figure>
+<embed src="vse_gan.webp"><figcaption>vse vs gan</figcaption>
+</figure>
+<p>可以看到VAE的“拟合”能力没有GAN的强，VAE会趋于平滑而GAN则不会。而且VAE产生的图像会比较模糊，这似乎所有优化对数似然的目标函数都有这问题(《Deep learning》)</p>
+<h1 id="参考资料">参考资料</h1>
+<p><a href="https://arxiv.org/abs/1312.6114" target="_blank" rel="noopener">Auto-encoding variational bayes</a> <a href="https://arxiv.org/abs/1606.05908" target="_blank" rel="noopener">Tutorial on variational autoencoders</a> <a href="https://stats.stackexchange.com/questions/199605/how-does-the-reparameterization-trick-for-vaes-work-and-why-is-it-important" target="_blank" rel="noopener">How does the reparameterization trick for VAEs work and why is it important?</a> <a href="http://kvfrans.com/variational-autoencoders-explained/" target="_blank" rel="noopener">Variational Autoencoders Explained</a> <a href="http://www.deeplearningbook.org/" target="_blank" rel="noopener">Deep learning</a></p>
+<p><a href="https://www.bilibili.com/video/av12802062/" target="_blank" rel="noopener">徐亦达机器学习课程</a></p>
+<p><a href="http://blog.csdn.net/a358463121/article/details/79421476" target="_blank" rel="noopener">带你理解EM算法</a></p>
 
       
     </div>
@@ -322,13 +351,13 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="">带你理解EM算法</a></p>
+        <p><span>本文标题:</span><a href="">变分自编码机(VAE)</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
-        <p><span>发布时间:</span>2018-03-01, 09:52:19</p>
-        <p><span>最后更新:</span>2018-03-06, 15:15:43</p>
+        <p><span>发布时间:</span>2018-03-13, 17:22:57</p>
+        <p><span>最后更新:</span>2018-03-13, 17:29:40</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="" title="带你理解EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/01/EM/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="" title="变分自编码机(VAE)">http://qjgods.github.io/2018/03/13/VAE/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/13/VAE/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -340,16 +369,10 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="../../06/KL-divergence/">
-                    正向跟反向KL距离到底有什么区别？
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="../../../02/26/LinkPrediction/">
-                    社交网络中的Link Prediction
+                <a href="../../06/KL-divergence/">
+                    正向跟反向KL距离到底有什么区别？
                 </a>
             </div>
         
@@ -361,7 +384,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#变分自编码机vae"><span class="toc-number">1.</span> <span class="toc-text">变分自编码机(VAE)</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#从em到变分推断"><span class="toc-number">1.1.</span> <span class="toc-text">从EM到变分推断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从变分推断到vae"><span class="toc-number">1.2.</span> <span class="toc-text">从变分推断到VAE</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#参考资料"><span class="toc-number">2.</span> <span class="toc-text">参考资料</span></a></li></ol>
         
     </div>
     <style>
@@ -405,21 +428,19 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="../../06/KL-divergence/" title="上一篇: 正向跟反向KL距离到底有什么区别？">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="../../../02/26/LinkPrediction/" title="下一篇: 社交网络中的Link Prediction">
+            <a href="../../06/KL-divergence/" title="下一篇: 正向跟反向KL距离到底有什么区别？">
                 <i class="fa fa-angle-right"></i>
             </a>
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../13/VAE/">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
