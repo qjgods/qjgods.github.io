@@ -460,7 +460,7 @@
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../../03/13/VAE/">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../../06/26/DVAE/">使用Gumbel trick来模拟离散分布的抽样</a></li><li class="post-list-item"><a class="post-list-link" href="../../../05/06/Style/">芝加哥顶级写作教程：Style</a></li><li class="post-list-item"><a class="post-list-link" href="../../../04/02/LatentVar/LatentVar/">隐变量是什么？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/13/VAE/">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
@@ -508,6 +508,7 @@
     <script>
         $(document).ready(function() {
             var iPad = window.navigator.userAgent.indexOf('iPad');
+			var iPad=1 //强制为1去掉背景
             if (iPad > -1 || $(".left-col").css("display") === "none") {
                 var bgColorList = ["#9db3f4", "#414141", "#e5a859", "#f5dfc6", "#c084a0", "#847e72", "#cd8390", "#996731"];
                 var bgColor = Math.ceil(Math.random() * (bgColorList.length - 1));

@@ -15,21 +15,21 @@
 
 
 
-<meta name="description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
-<meta name="keywords" content="机器学习">
+<meta name="description" content="文本介绍了Gumbel trick的两种应用，一种是采样，另一种是求解normalizing partition function">
 <meta property="og:type" content="article">
-<meta property="og:title" content="带你理解EM算法">
-<meta property="og:url" content="http://qjgods.github.io/2018/03/01/EM/index.html">
+<meta property="og:title" content="使用Gumbel trick来模拟离散分布的抽样">
+<meta property="og:url" content="http://qjgods.github.io/2018/06/26/DVAE/index.html">
 <meta property="og:site_name" content="qjgods">
-<meta property="og:description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
+<meta property="og:description" content="文本介绍了Gumbel trick的两种应用，一种是采样，另一种是求解normalizing partition function">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
-<meta property="og:image" content="http://qjgods.github.io/2018/03/01/EM/eAndMStep.PNG">
-<meta property="og:updated_time" content="2018-03-06T07:15:43.042Z">
+<meta property="og:image" content="http://qjgods.github.io/2018/06/26/DVAE/1529998574069.png">
+<meta property="og:image" content="http://qjgods.github.io/2018/06/26/DVAE/1530005723510.png">
+<meta property="og:image" content="http://qjgods.github.io/325px-Gumbel-Density.svg.png">
+<meta property="og:updated_time" content="2018-06-28T02:49:18.951Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="带你理解EM算法">
-<meta name="twitter:description" content="很多时候，我们都要最大化似然度来求得一个参数θ的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。而EM解决了这个问题">
-<meta name="twitter:image" content="http://qjgods.github.io/2018/03/01/EM/klsplitup.png">
+<meta name="twitter:title" content="使用Gumbel trick来模拟离散分布的抽样">
+<meta name="twitter:description" content="文本介绍了Gumbel trick的两种应用，一种是采样，另一种是求解normalizing partition function">
+<meta name="twitter:image" content="http://qjgods.github.io/2018/06/26/DVAE/1529998574069.png">
 
 <link rel="apple-touch-icon" href= "/apple-touch-icon.png">
 
@@ -59,7 +59,7 @@
 <link href="//cdn.bootcss.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
 
 
-<title>带你理解EM算法 | qjgods</title>
+<title>使用Gumbel trick来模拟离散分布的抽样 | qjgods</title>
 
 <script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
 <script src="//cdn.bootcss.com/clipboard.js/1.5.10/clipboard.min.js"></script>
@@ -232,11 +232,11 @@
     </div>
     <link class="menu-list" tags="标签" friends="友情链接" about="关于我"/>
 </nav>
-      <div class="body-wrap"><article id="post-EM" class="article article-type-post" itemscope itemprop="blogPost">
+      <div class="body-wrap"><article id="post-DVAE" class="article article-type-post" itemscope itemprop="blogPost">
   
     <div class="article-meta">
       <a href="" class="article-date">
-      <time datetime="2018-03-01T01:52:19.000Z" itemprop="datePublished">2018-03-01</time>
+      <time datetime="2018-06-26T07:32:41.000Z" itemprop="datePublished">2018-06-26</time>
 </a>
 
 
@@ -251,7 +251,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      带你理解EM算法
+      使用Gumbel trick来模拟离散分布的抽样
     </h1>
   
 
@@ -261,10 +261,6 @@
         
 
         
-    <div class="article-tag tagcloud">
-        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="../../../../tags/机器学习/">机器学习</a></li></ul>
-    </div>
-
         <div class="clearfix"></div>
       </div>
       
@@ -272,48 +268,66 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p>很多时候，我们都要最大化似然度来求得一个参数$$的最优值。但是，很多时候，当我们的模型中存在隐变量的时候（比如，一个词所属的主题，聚类问题中样本的类别, etc.），我们的似然度是很难求的。下面是该似然度的式子，其中z表示不可观测的变量，x表示可观测的变量，由于z是不可观测的，所以，要求似然度，我们必须要对z求和或求积分(连续的时候求积分，离散的时候求和)。</p>
-<p><span class="math display">\[
-\mathcal{L}( \theta ) =\sum ^{N}_{i=1}\log p( x_{i} |\theta ) =\sum ^{N}_{i=1}\log\left[\sum _{z_{i}} p( x_{i} ,z_{i} |\theta )\right]
-\]</span> 可以看到上面的这个式子，如果不存在隐变量的话，那么那个log是直接作用与p的，如果p恰好是指数族分布，那么这个似然度就非常好求，但是有隐变量的时候，log被一个<span class="math inline">\(\sum _{z}\)</span>给截断的，这就使得这个式子变得很难优化。</p>
-<p>这个问题的关键在于，<span class="math inline">\(\log p( x_{i} |\theta )\)</span>很难优化，但是<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>却很好优化,比如说聚类的时候，你提前知道所有样本的类别了，那你计算每个类别的中心距离就太简单了，但是要优化<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>的前提是，你要看得到隐变量的取值才行啊，然而隐变量是看不到的。EM算法通过一个巧妙的构造，让<span class="math inline">\(p( x_{i} ,z_{i} |\theta )\)</span>和似然度<span class="math inline">\(p( x_{i} |\theta )\)</span>的下界联系起来，这是我们只要优化下界就能代替优化似然度本身。</p>
-<p>接下来我们看一下对于单个样本<span class="math inline">\(p( x_{i})\)</span>似然度的下界是什么东西。在这里我们引入了<span class="math inline">\(z_{i}\)</span>的分布<span class="math inline">\(q_{i}( z_{i})\)</span></p>
-<p><span class="math display">\[
-\begin{aligned}
-\log p( x_{i} |\theta ) &amp; =\log p( x_{i} ,z_{i}) -\log p( z_{i} |x_{i})\\
- &amp; =\log\left(\frac{p( x_{i} ,z_{i})}{q_{i}( z_{i})}\right) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\
- &amp; =\log p( x_{i} ,z_{i}) -\log q_{i}( z_{i}) -\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right)\\
- &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz-\int q_{i}( z_{i})\log q( z_{i}) dz-\int q_{i}( z_{i})\log\left(\frac{p( z_{i} |x_{i})}{q_{i}( z_{i})}\right) dz( 两边同时对z求期望)\\
- &amp; =\underbrace{E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})}_{ELOB_{i}} +KL( q_{i}( z_{i}) ||p( z_{i} |x_{i}))
-\end{aligned}
-\]</span> 我们知道<span class="math inline">\(KL( q( z_{i}) ||p( z_{i} |x_{i})) \geqslant 0\)</span>，所以这个似然度一定有 <span class="math display">\[
-\log p( x_{i}) \geqslant E_{z_{i}}(\log p( x_{i} ,z_{i})) -H( q_{i})
-\]</span> 可以看到对数似然度被分解成了两部分，一个是evidence lower bound(ELOB)，似然度的下界，另一个是KL距离，不管q是什么分布，这两部分加起来肯定是一样的。</p>
+        <h2 id="the-gumbel-soft-max">The Gumbel soft-max</h2>
+<p>Gumbel trick有两个用途，一个用途是是用来对离散分布进行采样，这是一种重参数化的技巧，另外一个用途是用于估计normalizing partition function，也就是分布的归一化项。下面是一个离散分布采样的例子： <img src="1529998574069.png" alt="1529998574069"></p>
 <figure>
-<img src="klsplitup.png" alt="ELOB与KL"><figcaption>ELOB与KL</figcaption>
+<img src="1530005723510.png" alt="1530005723510"><figcaption>1530005723510</figcaption>
 </figure>
-<p>图中的L是我们的ELOB。</p>
-<p>也就是说，只要我们令KL距离为0，此时 <span class="math inline">\(q(z) =p(z|x)\)</span> ，那么ELOB就等于似然度的值了。这就意味着我们最大化 <span class="math inline">\(\theta\)</span> 的时候，不再需要对<span class="math inline">\(\log p(x|\theta)\)</span>做，只要找到 <span class="math inline">\(\theta\)</span> 使得这个ELOB最大不就相当于在“最大化我们的似然度”吗。而最大化这个ELOB太简单了，在这里<span class="math inline">\(H(q)\)</span> 是q的熵，与 <span class="math inline">\(\theta\)</span> 无关只与分布q有关，所以不用管。于是我们把 <span class="math inline">\(q(z) =p(z|x)\)</span> 代入到ELOB中得到 <span class="math display">\[
+<p>如上图例子，首先有<span class="math inline">\(\log \alpha_1\)</span> 然后加上一个gumbel noise G1，最后取最大值，就是我们要的样本。这个过程可以形式化为，设X是离散随机分布<span class="math inline">\(P(X=k)\propto \alpha_k\)</span> , 设<span class="math inline">\(\{G_k\}_{k\le K}\)</span>是独立同分布的Gumbel 分布的随机变量。于是： <span class="math display">\[
+X=\arg\max_k(\log(\alpha_k)+G_k)
+\]</span></p>
+<p>为了让这个argmax可求导，于是就把中间的argmax换成softmax。我们从这个图底下的“+”号可以看到，这是一种重参数的方法，通过加一个随机的，固定分布的噪声，从而实现采样。这个噪声的采样方法可以通过<a href="https://en.wikipedia.org/wiki/Inverse_transform_sampling" target="_blank" rel="noopener">Inverse transform sampling</a>方法直接从均匀分布进行采样，即 <span class="math display">\[
+G_i\sim -log(-log(\text{Uniform}(0,1)))
+\]</span></p>
+<p>目前一篇论文“<a href="https://arxiv.org/pdf/1611.01144.pdf" target="_blank" rel="noopener">Categorical Reparametrization with Gumbel-Softmax</a>”正是用了这个方法去对离散的隐状态进行采样，从而使得里面的参数可导。</p>
+<h2 id="gumbel-distribution">Gumbel distribution</h2>
+<p>要想知道他为什么有这样的效果，我们需要先介绍一下<a href="https://en.wikipedia.org/wiki/Gumbel_distribution" target="_blank" rel="noopener">gumbel distribution</a></p>
+<p>这一个分布，可以把看作是一个关于“最大值”的概率的分布，比如你想预测明年河流最大的水位是多少，那么你就可以用gumbel分布去预测，这个分布会告诉你每一个值作为“最大值“的概率是多少。一个很简单的推广，如果你对这个分布取个负号的话，你就可以去预测最小值。 <img src="/325px-Gumbel-Density.svg.png" alt="325px-Gumbel-Density.svg"></p>
+<p>他的概率密度函数： <span class="math display">\[
+f(x) =  {\frac {1}{\beta }}e^{-(z+e^{-z})}
+\]</span> 其中<span class="math inline">\(z=\frac{x-\mu}{\beta}\)</span></p>
+<p>他的分布函数： <span class="math display">\[
+F(x)= e^{-e^{-(x-\mu )/\beta }}
+\]</span> 均值：<span class="math inline">\(E(X)=\mu+c\beta\)</span>,方差：$ {}^{2}<span class="math inline">\(,其中\)</span>c$是一个常数( <a href="https://en.wikipedia.org/wiki/Euler%E2%80%93Mascheroni_constant" target="_blank" rel="noopener">Euler–Mascheroni constant</a> )</p>
+<h2 id="gumbel-trick">Gumbel trick</h2>
+<p>我们先考虑一下，求解normalizing partition function. 就是分布的归一化项的问题。</p>
+<p>定义一个非标准化的mass function <span class="math inline">\(\tilde{p} : \mathcal{X} \to [0, \infty)\)</span> 这个分布是没有标准化的，也就是他加起来不等于1.而它的标准化项normalizing partition function为<span class="math inline">\(Z:= \sum_{x \in \mathcal{X}} \tilde{p}(x)\)</span>,接来下我们定义<span class="math inline">\(\phi(x)=\ln \tilde{p}(x)\)</span> 对其概率密度取对数。</p>
+<p>于是可以证明： <span class="math display">\[
+\max_{x \in \mathcal{X}} \{ \phi(x) + \gamma(x) \} \sim \text{Gumbel}(-c + \ln Z)
+\]</span> 其中<span class="math inline">\(\gamma \sim \text{Gumbel}(-c)\)</span>。这就意味，只要我们从<span class="math inline">\(\max_{x \in \mathcal{X}} \{ \phi(x) + \gamma(x) \}\)</span>中采集足够多的样本，我们就能够知道Z的取值(通过求期望得到)。</p>
+<p>具体的推导过程如下： 令<span class="math inline">\(T=\max_{x\in \mathcal{X}} \{\phi (x)+\gamma (x)\}\)</span>，于是他的概率分布等于 <span class="math display">\[
 \begin{aligned}
-ELOB_{i} &amp; =E_{z_{i}}(\log p( x_{i} ,z_{i})) +const\\
- &amp; =\int q_{i}( z_{i})\log p( x_{i} ,z_{i}) dz+const\\
- &amp; =\int p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) dz+const\\
- &amp; =\sum _{z_{i}} p( z_{i} |x_{i})\log p( x_{i} ,z_{i}) +const( 如果z是离散的)
+P(T&lt; t) &amp; =P(\max_{x\in \mathcal{X}} \{\phi (x)+\gamma (x)\}&lt; t)\\
+ &amp; =\prod _{x\in \mathcal{X}} P(\phi (x)+\gamma (x)&lt; t)( 最大值小于t等价于每一项都小于t)\\
+ &amp; =\prod _{x\in \mathcal{X}} P(\gamma (x)&lt; t-\phi (x))\\
+ &amp; =\prod _{x\in \mathcal{X}} F_{Gumbel} (t-\phi (x))\\
+ &amp; =\exp\left( -\sum _{x\in \mathcal{X}}\exp( -(t-\phi (x)+c))\right)\\
+ &amp; =\exp( -Z\exp( -(t+c)))\\
+ &amp; =\exp( -\exp( -(t+c-\ln Z)))\\
+ &amp; \Rightarrow F(t)\text{ where } t\sim \text{Gumbel} (-c+\ln Z)
+\end{aligned}
+\]</span> 我们发现这个max的函数，最后是服从<span class="math inline">\(\text{Gumbel} (-c+\ln Z)\)</span>分布的，也就是说，我们只要求这个分布的期望：<span class="math inline">\(E=-c+\ln Z+c=\ln Z\)</span>就可以把<span class="math inline">\(\ln Z\)</span>还原出来！这个例子也从侧面说明了Gumbel分布用于表示最大值的概率分布的优势所在。</p>
+<p>如果我们的p是已经标准化的p，那么Z=0，于是，这个分布只与<span class="math inline">\(\gamma(x)\)</span>有关。实际上，当<span class="math inline">\(\gamma \sim Gumbel(0,1)\)</span>，而p是多项式分布的时候就是我们模拟多项式分布进行采样时所服从的分布！那么为什么这个Gumbel 分布能够模拟多项式分布？</p>
+<p>我们来考虑一个问题，对于公式1，多项式一共有K个类别。那么第k个类别恰好是最大的概率是多少？</p>
+<p>令<span class="math inline">\(\displaystyle z_{k} =\log \alpha _{k} +G_{k}\)</span>要求解这个问题，我们要先求出<span class="math inline">\(z_k\)</span>是最大的概率多少？然后再对z积分，从而求出第k个是最大的概率。 <span class="math display">\[
+\begin{aligned}
+\Pr (\log \alpha _{k} +G_{k}  &gt;\max_{i\neq k}\log \alpha _{i} +G_{i} ) &amp; =\Pr (\max_{i\neq k}\log \alpha _{i} +G_{i} &lt; \log \alpha _{k} +G_{k} )\\
+ &amp; =\prod _{i\neq k}\Pr (\log \alpha _{i} +G_{i} &lt; \log \alpha _{k} +G_{k} )\\
+ &amp; =\prod _{i\neq k}\Pr (G_{i} &lt; \log \alpha _{k} +G_{k} -\log \alpha _{i} )\\
+ &amp; =\prod _{i\neq k} F(\log \alpha _{k} +G_{k} -\log \alpha _{i})\\
+ &amp; =\prod _{i\neq k}\exp\{-\exp\{-(\log \alpha _{k} +G_{k} -\log \alpha _{i})\}\}
 \end{aligned}
 \]</span></p>
-<figure>
-<img src="eAndMStep.PNG" alt="EM算法示意图"><figcaption>EM算法示意图</figcaption>
-</figure>
-<p>EM算法，示意图，E步，把KL设为0，蓝色的线往上移，使得ELOB=似然度，M步，最大化ELOB，使得似然度增大，红色的线往上移，然后我们不断重复直到收敛。</p>
-<p>考虑所有样本，正式的EM框架：</p>
-<p>E步：把<span class="math inline">\(q_{i}( z_{i}) =p( z_{i} |x_{i})\)</span>代入到下界中，再把常数项剔除， <span class="math display">\[
-Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{i},\theta^{t-1})\log p( x_{i} ,z_{i},\theta)=\sum ^{N}_{i=1} E\left[\log p( x_{i} ,z_{i} |\theta ) |x_{i} ,\theta ^{t-1}\right]
-\]</span> M步：最大化下界ELOB <span class="math display">\[
-\theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right)
+<p>现在我们有了<span class="math inline">\(\displaystyle z_{k}\)</span>是最大的那个概率值，现在我们想知道第k个元素是最大的概率值是多少，因此，我们需要对所有z的取值进行积分，从而得到第k个位置取值最大的概率。 <span class="math display">\[
+\begin{aligned}
+\Pr (\text{k is largest} \ |\ \{x_{k&#39;} \}) &amp; =\int \exp \{-(z_{k} -\log \alpha _{k} )-\exp \{-(z_{k} -\log \alpha _{k} )\}\} \prod _{i\neq k}\exp \{-\exp \{-(z_{k} -\log \alpha _{i} )\}\}\ \mathrm{d} z_{k}\\
+ &amp; =\int \exp \{-z_{k} +\log \alpha _{k} -\exp \{-z_{k} \}\sum ^{K}_{i=1}\exp \{\log \alpha _{i} \}\}\ \mathrm{d} z_{k}\\
+ &amp; =\frac{\exp \{\log \alpha _{k} \}}{\sum ^{K}_{i=1}\exp \{\log \alpha _{i} \}}
+\end{aligned}
 \]</span></p>
-<p>M步2：我们还可以做MAP估计，只需要在Q加上参数的对数先验就可以轻松完成，E步没有任何变化 <span class="math display">\[
-\theta ^{t} =\arg\max_{\theta } Q\left( \theta ,\theta ^{t-1}\right) +\log p( \theta )
-\]</span> 在MAP估计的时候，不仅需要考虑下界的最大化，还需要考虑先验对参数的影响。</p>
+<p>这时候，奇迹来了，上面这条等式恰好是一个softmax的公式，也就是说，第k个位置最大的概率，恰好就是对离散概率分布的一个近似。而且一个有趣的性质是这里的<span class="math inline">\(\alpha_k\)</span>是不需要归一化的，因为经过softmax之后他就自动归一化了！</p>
+<h2 id="参考资料">参考资料</h2>
+<p>http://irenechen.net/blog/2017/08/17/gumbel-trick.html https://www.youtube.com/watch?v=wVkLM2KKHp8 https://hips.seas.harvard.edu/blog/2013/04/06/the-gumbel-max-trick-for-discrete-distributions/</p>
 
       
     </div>
@@ -322,13 +336,13 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
   
     
     <div class="copyright">
-        <p><span>本文标题:</span><a href="">带你理解EM算法</a></p>
+        <p><span>本文标题:</span><a href="">使用Gumbel trick来模拟离散分布的抽样</a></p>
         <p><span>文章作者:</span><a href="/" title="回到主页">Jie Qiao</a></p>
-        <p><span>发布时间:</span>2018-03-01, 09:52:19</p>
-        <p><span>最后更新:</span>2018-03-06, 15:15:43</p>
+        <p><span>发布时间:</span>2018-06-26, 15:32:41</p>
+        <p><span>最后更新:</span>2018-06-28, 10:49:18</p>
         <p>
-            <span>原始链接:</span><a class="post-url" href="" title="带你理解EM算法">http://qjgods.github.io/2018/03/01/EM/</a>
-            <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/03/01/EM/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
+            <span>原始链接:</span><a class="post-url" href="" title="使用Gumbel trick来模拟离散分布的抽样">http://qjgods.github.io/2018/06/26/DVAE/</a>
+            <span class="copy-path" data-clipboard-text="原文: http://qjgods.github.io/2018/06/26/DVAE/　　作者: Jie Qiao" title="点击复制文章链接"><i class="fa fa-clipboard"></i></span>
             <script> var clipboard = new Clipboard('.copy-path'); </script>
         </p>
         <p>
@@ -340,16 +354,10 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
 
     <nav id="article-nav">
         
-            <div id="article-nav-newer" class="article-nav-title">
-                <a href="../../06/KL-divergence/">
-                    正向跟反向KL距离到底有什么区别？
-                </a>
-            </div>
-        
         
             <div id="article-nav-older" class="article-nav-title">
-                <a href="../../../02/26/LinkPrediction/">
-                    社交网络中的Link Prediction
+                <a href="../../../05/06/Style/">
+                    芝加哥顶级写作教程：Style
                 </a>
             </div>
         
@@ -361,7 +369,7 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
     <div id="toc" class="toc-article">
         <strong class="toc-title">文章目录</strong>
         
-            
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#the-gumbel-soft-max"><span class="toc-number">1.</span> <span class="toc-text">The Gumbel soft-max</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gumbel-distribution"><span class="toc-number">2.</span> <span class="toc-text">Gumbel distribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gumbel-trick"><span class="toc-number">3.</span> <span class="toc-text">Gumbel trick</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考资料"><span class="toc-number">4.</span> <span class="toc-text">参考资料</span></a></li></ol>
         
     </div>
     <style>
@@ -405,21 +413,19 @@ Q\left( \theta ,\theta ^{t-1}\right) =\sum ^{N}_{i=1}\sum _{z_{i}} p( z_{i} |x_{
 
     <div class="scroll" id="post-nav-button">
         
-            <a href="../../06/KL-divergence/" title="上一篇: 正向跟反向KL距离到底有什么区别？">
-                <i class="fa fa-angle-left"></i>
-            </a>
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
         
 
         <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
 
         
-            <a href="../../../02/26/LinkPrediction/" title="下一篇: 社交网络中的Link Prediction">
+            <a href="../../../05/06/Style/" title="下一篇: 芝加哥顶级写作教程：Style">
                 <i class="fa fa-angle-right"></i>
             </a>
         
     </div>
 
-    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="../../../06/26/DVAE/">使用Gumbel trick来模拟离散分布的抽样</a></li><li class="post-list-item"><a class="post-list-link" href="../../../05/06/Style/">芝加哥顶级写作教程：Style</a></li><li class="post-list-item"><a class="post-list-link" href="../../../04/02/LatentVar/LatentVar/">隐变量是什么？</a></li><li class="post-list-item"><a class="post-list-link" href="../../13/VAE/">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="">使用Gumbel trick来模拟离散分布的抽样</a></li><li class="post-list-item"><a class="post-list-link" href="../../../05/06/Style/">芝加哥顶级写作教程：Style</a></li><li class="post-list-item"><a class="post-list-link" href="../../../04/02/LatentVar/LatentVar/">隐变量是什么？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/13/VAE/">变分自编码机(VAE)</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/06/KL-divergence/">正向跟反向KL距离到底有什么区别？</a></li><li class="post-list-item"><a class="post-list-link" href="../../../03/01/EM/">带你理解EM算法</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/26/LinkPrediction/">社交网络中的Link Prediction</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/19/PageRank/">PageRank算法在社交网络上的应用</a></li><li class="post-list-item"><a class="post-list-link" href="../../../02/18/Computational Learning Theory and Model Selection/">Computational Learning Theory and Model Selection</a></li></ul>
 
 
 
